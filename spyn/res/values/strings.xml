@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Spyn</string>
+    <string name="no_notes">No Notes Yet</string>
+    <string name="menu_insert">Add Note</string>
+    <string name="menu_delete">Delete Note</string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="confirm">Save Memory</string>
+    <string name="edit_note">Edit Note</string>
+<string name="time">Time:\t</string>
+<string name="recording">Recording</string>
+<string name="video">Audio/Video</string>
+<string name="photo">Photo</string>
+<string name="knit">Knit</string>
+<string name="comma">,\t</string>
+<color name="color1">#96aa62</color>
+<color name="color2">#3f4776</color>
+<color name="color3">#bea787</color>
+</resources>
