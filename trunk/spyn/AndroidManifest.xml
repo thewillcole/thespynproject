@@ -30,10 +30,6 @@
 		<activity android:name="LocateMe"></activity>
 		
 		<activity android:name="LocateWe"></activity>
-		
-		<activity android:name="PhotographMe"
-			android:screenOrientation="landscape">
-		</activity>
 				
 		<activity android:name="Notepadv3"></activity>
 		
