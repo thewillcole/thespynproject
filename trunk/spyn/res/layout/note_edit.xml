@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+
+		<!-- TITLE -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/title" />
+			<EditText android:id="@+id/title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_weight="1" />
+		</LinearLayout>
+
+		<!-- TIME -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Time: " />
+			<TextView android:id="@+id/time"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+		</LinearLayout>
+
+		<!-- LOCATION -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Location: " />
+			<TextView android:id="@+id/location"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:layout_weight="1"
+				android:scrollbars="vertical" />
+		</LinearLayout>
+
+		<!-- LOCATION COORDS -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Lat/Lon: " />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/latitude" />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text=", " />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/longitude" />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="." />
+		</LinearLayout>
+
+		<!-- Counters -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Video,Audio,Photo,Knit: " />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/video" />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text=", " />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/audio" />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text=", " />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/photo" />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text=", " />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/knit" />
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="." />
+		</LinearLayout>
+
+		<!-- BODY 
+			<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/body" />-->
+		<EditText android:id="@+id/body"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:scrollbars="vertical" />
+
+
+		<!-- (video/audio record buttons -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+			<!--  VIDEO  -->
+			<LinearLayout android:orientation="horizontal"
+				android:background="@color/color1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<Button android:id="@+id/videoRecordButton"
+					android:text="record" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+				<Button android:id="@+id/videoPlayButton"
+					android:text="play" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+			</LinearLayout>
+			<!--  AUDIO  -->
+			<LinearLayout android:orientation="horizontal"
+				android:background="@color/color2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<Button android:id="@+id/audioRecordButton"
+					android:text="record" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+				<Button android:id="@+id/audioPlayButton"
+					android:text="play" android:visibility="invisible"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+			</LinearLayout>
+		</LinearLayout>
+
+		<!-- picture buttons -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+			<LinearLayout android:orientation="horizontal"
+				android:background="@color/color1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<Button android:id="@+id/photoButton"
+					android:text="take photo" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+				<ImageButton android:id="@+id/photoImage" android:visibility="gone"
+					android:layout_width="50dip" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
+			</LinearLayout>
+			<LinearLayout android:orientation="horizontal"
+				android:background="@color/color2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+				<Button android:id="@+id/knitButton"
+					android:text="scan knit" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+				<ImageButton android:id="@+id/knit" android:visibility="gone"
+					android:layout_width="50dip" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
+			</LinearLayout>
+		</LinearLayout>
+
+		<!-- (save button) -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_weight="1" android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<Button android:id="@+id/confirm"
+				android:text="@string/confirm" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+			<Button android:id="@+id/locateMe" android:text="locateMe"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+		</LinearLayout>
+
+	</LinearLayout>
+
+</ScrollView>
