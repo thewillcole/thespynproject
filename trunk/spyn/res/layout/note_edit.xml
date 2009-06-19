@@ -14,7 +14,7 @@
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="@string/title" />
-			<EditText android:id="@+id/title"
+			<EditText android:id="@+id/NOTE_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:layout_weight="1" />
 		</LinearLayout>
@@ -25,7 +25,7 @@
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="Time: " />
-			<TextView android:id="@+id/time"
+			<TextView android:id="@+id/NOTE_time"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content" />
 		</LinearLayout>
@@ -36,7 +36,7 @@
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="Location: " />
-			<TextView android:id="@+id/location"
+			<TextView android:id="@+id/NOTE_location"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" android:layout_weight="1"
 				android:scrollbars="vertical" />
@@ -49,11 +49,11 @@
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="Lat/Lon: " />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/latitude" />
+				android:layout_height="wrap_content" android:id="@+id/NOTE_latitude" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text=", " />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/longitude" />
+				android:layout_height="wrap_content" android:id="@+id/NOTE_longitude" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="." />
 		</LinearLayout>
@@ -66,19 +66,19 @@
 				android:layout_height="wrap_content"
 				android:text="Video,Audio,Photo,Knit: " />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/video" />
+				android:layout_height="wrap_content" android:id="@+id/NOTE_video" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text=", " />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/audio" />
+				android:layout_height="wrap_content" android:id="@+id/NOTE_audio" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text=", " />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/photo" />
+				android:layout_height="wrap_content" android:id="@+id/NOTE_photo" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text=", " />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/knit" />
+				android:layout_height="wrap_content" android:id="@+id/NOTE_knit" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="." />
 		</LinearLayout>
@@ -86,7 +86,7 @@
 		<!-- BODY 
 			<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:text="@string/body" />-->
-		<EditText android:id="@+id/body"
+		<EditText android:id="@+id/NOTE_body"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:layout_weight="1"
 			android:scrollbars="vertical" />
@@ -101,10 +101,10 @@
 				android:background="@color/color1"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
-				<Button android:id="@+id/videoRecordButton"
+				<Button android:id="@+id/NOTE_videoCaptureButton"
 					android:text="record" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
-				<Button android:id="@+id/videoPlayButton"
+				<Button android:id="@+id/NOTE_videoPreviewButton"
 					android:text="play" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
 			</LinearLayout>
@@ -113,10 +113,10 @@
 				android:background="@color/color2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
-				<Button android:id="@+id/audioRecordButton"
+				<Button android:id="@+id/NOTE_audioCaptureButton"
 					android:text="record" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
-				<Button android:id="@+id/audioPlayButton"
+				<Button android:id="@+id/NOTE_audioPreviewButton"
 					android:text="play" android:visibility="invisible"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
@@ -131,20 +131,20 @@
 				android:background="@color/color1"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
-				<Button android:id="@+id/photoButton"
+				<Button android:id="@+id/NOTE_photoCaptureButton"
 					android:text="take photo" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
-				<ImageButton android:id="@+id/photoImage" android:visibility="gone"
+				<ImageButton android:id="@+id/NOTE_photoPreviewButton" android:visibility="gone"
 					android:layout_width="50dip" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
 			</LinearLayout>
 			<LinearLayout android:orientation="horizontal"
 				android:background="@color/color2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
-				<Button android:id="@+id/knitButton"
+				<Button android:id="@+id/NOTE_knitCaptureButton"
 					android:text="scan knit" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
-				<ImageButton android:id="@+id/knit" android:visibility="gone"
+				<ImageButton android:id="@+id/NOTE_knitPreviewButton" android:visibility="gone"
 					android:layout_width="50dip" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
 			</LinearLayout>
 		</LinearLayout>
@@ -153,10 +153,10 @@
 		<LinearLayout android:orientation="horizontal"
 			android:layout_weight="1" android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
-			<Button android:id="@+id/confirm"
+			<Button android:id="@+id/NOTE_confirm"
 				android:text="@string/confirm" android:layout_width="wrap_content"
 				android:layout_height="wrap_content" />
-			<Button android:id="@+id/locateMe" android:text="locateMe"
+			<Button android:id="@+id/NOTE_locateMe" android:text="locateMe"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content" />
 		</LinearLayout>
