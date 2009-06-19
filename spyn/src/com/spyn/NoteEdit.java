@@ -58,16 +58,16 @@ public class NoteEdit extends Activity {
         }        
         Toast.makeText(NoteEdit.this, "Action: " + mAction, Toast.LENGTH_SHORT).show();
        
-        mTimeText = (TextView) findViewById(R.id.time);
-        mTitleText = (EditText) findViewById(R.id.title);
-        mBodyText = (EditText) findViewById(R.id.body);
-        mVideoText = (TextView) findViewById(R.id.video);
-        mAudioText = (TextView) findViewById(R.id.audio);
-        mPhotoText = (TextView) findViewById(R.id.photo);
-        mKnitText = (TextView) findViewById(R.id.knit);
-        mLatitudeText = (TextView) findViewById(R.id.latitude);
-        mLongitudeText = (TextView) findViewById(R.id.longitude);
-        mLocationText = (TextView) findViewById(R.id.location);
+        mTimeText = (TextView) findViewById(R.id.NOTE_time);
+        mTitleText = (EditText) findViewById(R.id.NOTE_title);
+        mBodyText = (EditText) findViewById(R.id.NOTE_body);
+        mVideoText = (TextView) findViewById(R.id.NOTE_video);
+        mAudioText = (TextView) findViewById(R.id.NOTE_audio);
+        mPhotoText = (TextView) findViewById(R.id.NOTE_photo);
+        mKnitText = (TextView) findViewById(R.id.NOTE_knit);
+        mLatitudeText = (TextView) findViewById(R.id.NOTE_latitude);
+        mLongitudeText = (TextView) findViewById(R.id.NOTE_longitude);
+        mLocationText = (TextView) findViewById(R.id.NOTE_location);
 
         mRowId = savedInstanceState != null ? savedInstanceState.getLong(NotesDbAdapter.KEY_ROWID) 
         		: null;
@@ -80,13 +80,13 @@ public class NoteEdit extends Activity {
         //-------------
         // BUTTONS
         // ------------
-        Button confirmButton = (Button) findViewById(R.id.confirm);
-        //Button videoButton = (Button) findViewById(R.id.record);
-        Button startButton = (Button) findViewById(R.id.audioRecordButton);
-        //Button stopButton = (Button) findViewById(R.id.stopButton);
-        Button playButton = (Button) findViewById(R.id.audioPlayButton);
-        Button locateMeButton = (Button) findViewById(R.id.locateMe);
-        Button photoButton = (Button) findViewById(R.id.photoButton);
+        Button confirmButton = (Button) findViewById(R.id.NOTE_confirm);
+        //Button videoButton = (Button) findViewById(R.id.NOTE_record);
+        Button startButton = (Button) findViewById(R.id.NOTE_audioCaptureButton);
+        //Button stopButton = (Button) findViewById(R.id.NOTE_stopButton);
+        Button playButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
+        Button locateMeButton = (Button) findViewById(R.id.NOTE_locateMe);
+        Button photoButton = (Button) findViewById(R.id.NOTE_photoCaptureButton);
         // locateMe
         locateMeButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
@@ -103,7 +103,7 @@ public class NoteEdit extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         		saveState();
-        		TextView tempAudioButtonText = (TextView) findViewById(R.id.audioRecordButton);
+        		TextView tempAudioButtonText = (TextView) findViewById(R.id.NOTE_audioCaptureButton);
         		
         		if (tempAudioButtonText.getText().toString().equals("record")) {
         			tempAudioButtonText.setText("stop");        			
@@ -117,7 +117,7 @@ public class NoteEdit extends Activity {
         			tempAudioButtonText.setText("record");
         			Toast.makeText(NoteEdit.this, "stop", Toast.LENGTH_SHORT).show();
             		RecordMe.stopRecord();
-            		TextView tempPlayAudioButtonText = (TextView) findViewById(R.id.audioPlayButton);
+            		TextView tempPlayAudioButtonText = (TextView) findViewById(R.id.NOTE_audioPreviewButton);
             		if (tempPlayAudioButtonText.getVisibility() == View.INVISIBLE) {
             			tempPlayAudioButtonText.setVisibility(View.VISIBLE);
             		}
@@ -136,7 +136,7 @@ public class NoteEdit extends Activity {
         		
         		callPhoto();
 
-        		ImageButton photoImageButton = (ImageButton) findViewById(R.id.photoImage);
+        		ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
         		Uri uri = Uri.fromFile(new File(RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString())));
         		//photoImageButton.setImageURI(uri);
         		photoImageButton.setImageResource(R.drawable.button_globe);
