@@ -8,22 +8,15 @@
 package com.spyn;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-
 import android.app.Activity;
 import android.app.ListActivity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore.Images;
-import android.provider.MediaStore.Images.Media;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +24,6 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -43,7 +35,10 @@ public class Spyn extends ListActivity {
     private static final int ACTIVITY_VIEW=2;
     public static final int ACTIVITY_PHOTO=3;
     
-    private static final int INSERT_ID = Menu.FIRST;
+    //private static final int INSERT_ID = Menu.FIRST;
+    private static final int MENU_ADD = -1;
+    private static final int MENU_EDIT = -2;
+    private static final int MENU_SCAN = -3;
     private static final int DELETE_ID = Menu.FIRST + 1;
 
     private NotesDbAdapter mDbHelper;
@@ -58,34 +53,8 @@ public class Spyn extends ListActivity {
         fillData();
         registerForContextMenu(getListView());
 
-        //------------------------------------------
         //buttons
         //------------------------------------------
-        //VIEW
-        final Button button_view = (Button) findViewById(R.id.button_view);
-        button_view.setOnClickListener(new OnClickListener() {
-        	public void onClick(View v) {
-                Intent i = new Intent();
-                i.setClassName("com.spyn", "com.spyn.Notepadv3");
-                i.setAction(NotesDbAdapter.ACTION_VIEW);
-                startActivityForResult(i, ACTIVITY_VIEW); }});
-        //EDIT
-        final Button button_edit = (Button) findViewById(R.id.button_edit);
-        button_edit.setOnClickListener(new OnClickListener() {
-        	public void onClick(View v) {
-                Intent i = new Intent();
-                i.setClassName("com.spyn", "com.spyn.Notepadv3");
-                i.setAction(NotesDbAdapter.ACTION_EDIT);
-                startActivityForResult(i, ACTIVITY_EDIT); }});
-        //CREATE
-        final Button button_create = (Button) findViewById(R.id.button_create);
-        button_create.setOnClickListener(new OnClickListener() {
-        	public void onClick(View v) {
-                Intent i = new Intent();
-                i.setClassName("com.spyn", "com.spyn.NoteEdit");
-                i.setAction(NotesDbAdapter.ACTION_CREATE);
-                //i.putExtra(NotesDbAdapter.KEY_ROWID, id);
-                startActivityForResult(i, ACTIVITY_CREATE); }});
         //PHOTOGRAPH
         final Button button_scan = (Button) findViewById(R.id.button_scan);
         //this will later change.
@@ -101,7 +70,6 @@ public class Spyn extends ListActivity {
         		Toast.makeText(Spyn.this, "MAP!", Toast.LENGTH_SHORT).show();
         		fillMap();
         		}});
-        //------------------------------------------
         //------------------------------------------
     }
     
@@ -122,13 +90,6 @@ public class Spyn extends ListActivity {
     }
     
     public void callPhotographMe() {
-    	//Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-    	//startActivityForResult(intent, 0);
-    	//Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-    	//startActivityForResult(intent, 0);
-    	
-    	//Intent i = new Intent(this, PhotographMe.class);
-    	//startActivity(i);
     	Toast.makeText(Spyn.this, "Tap \"Attach\" to save after you take the picture.", Toast.LENGTH_LONG).show();
     	Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         startActivityForResult(intent,Spyn.ACTIVITY_PHOTO);
@@ -142,16 +103,35 @@ public class Spyn extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, INSERT_ID, 0, R.string.menu_insert);
+        //menu.add(0, INSERT_ID, 0, R.string.menu_insert);
+        menu.add(0, MENU_ADD, 0,"Add New");
+        menu.add(0, MENU_SCAN, 0, "SCAN New");
+        menu.add(0, MENU_EDIT, 0, "Edit Memories");
         return true;
     }
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        switch(item.getItemId()) {
-        case INSERT_ID:
-            createNote();
-            return true;
+    	Intent i = new Intent();
+    	switch(item.getItemId()) {
+        case MENU_ADD:
+        	//
+            i.setClassName("com.spyn", "com.spyn.NoteEdit");
+            i.setAction(NotesDbAdapter.ACTION_CREATE);
+            startActivityForResult(i, ACTIVITY_CREATE);
+        	return true;
+        case MENU_SCAN:
+        	//
+            i.setClassName("com.spyn", "com.spyn.NoteEdit");
+            i.setAction(NotesDbAdapter.ACTION_CREATE);
+            startActivityForResult(i, ACTIVITY_CREATE);
+        	return true;
+        case MENU_EDIT:
+        	//
+            i.setClassName("com.spyn", "com.spyn.Notepadv3");
+            i.setAction(NotesDbAdapter.ACTION_EDIT);
+            startActivityForResult(i, ACTIVITY_EDIT);
+        	return true;
         }
        
         return super.onMenuItemSelected(featureId, item);
