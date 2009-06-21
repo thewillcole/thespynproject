@@ -82,11 +82,11 @@ public class NoteEdit extends Activity {
         // ------------
         Button confirmButton = (Button) findViewById(R.id.NOTE_confirm);
         //Button videoButton = (Button) findViewById(R.id.NOTE_record);
-        Button startButton = (Button) findViewById(R.id.NOTE_audioCaptureButton);
+        Button audioCaptureButtonButton = (Button) findViewById(R.id.NOTE_audioCaptureButton);
         //Button stopButton = (Button) findViewById(R.id.NOTE_stopButton);
-        Button playButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
+        Button audioPreviewButtonButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
         Button locateMeButton = (Button) findViewById(R.id.NOTE_locateMe);
-        Button photoButton = (Button) findViewById(R.id.NOTE_photoCaptureButton);
+        Button photoCaptureButtonButton = (Button) findViewById(R.id.NOTE_photoCaptureButton);
         // locateMe
         locateMeButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
@@ -100,7 +100,7 @@ public class NoteEdit extends Activity {
         	    setResult(RESULT_OK);
         	    finish(); }});
         //record AUDIO
-        startButton.setOnClickListener(new View.OnClickListener() {
+        audioCaptureButtonButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         		saveState();
         		TextView tempAudioButtonText = (TextView) findViewById(R.id.NOTE_audioCaptureButton);
@@ -124,23 +124,23 @@ public class NoteEdit extends Activity {
         		}
         		saveState(); }});
         //play AUDIO
-        playButton.setOnClickListener(new View.OnClickListener() {
+        audioPreviewButtonButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         		String path = RecordMe.getVideoPathFromId(mRowId, mAudioText.getText().toString());
         		Toast.makeText(NoteEdit.this, "play"/*: " + path*/, Toast.LENGTH_SHORT).show();
         		RecordMe.playRecord(NoteEdit.this, path); }});
         
         //take PHOTO
-        photoButton.setOnClickListener(new View.OnClickListener() {
+        photoCaptureButtonButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         		
         		callPhoto();
 
-        		ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
-        		Uri uri = Uri.fromFile(new File(RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString())));
+        		//ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
+        		//Uri uri = Uri.fromFile(new File(RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString())));
         		//photoImageButton.setImageURI(uri);
-        		photoImageButton.setImageResource(R.drawable.button_globe);
-        		photoImageButton.setVisibility(View.VISIBLE);
+        		//photoImageButton.setImageResource(R.drawable.button_globe);
+        		//photoImageButton.setVisibility(View.VISIBLE);
         		
         	}});
         
@@ -159,7 +159,7 @@ public class NoteEdit extends Activity {
     }
     
     private void populateFields() {
-    	if (mRowId != null) {
+    	if (mRowId != null) {    		
     		Cursor note = mDbHelper.fetchNote(mRowId);
     		startManagingCursor(note);
     		mTitleText.setText(note.getString(
@@ -182,6 +182,18 @@ public class NoteEdit extends Activity {
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LAT)));
     		mLongitudeText.setText(note.getString(
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON)));
+    		//--------------------------
+    		// Show playback buttons
+    		//--------------------------
+    		if (!mAudioText.getText().toString().equals("0")) { // show preview button: 
+    			Button audioPreviewButtonButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
+    			audioPreviewButtonButton.setVisibility(View.VISIBLE);
+    		}
+    		if (!mLocationText.getText().toString().equals("")) {
+    			Button locationLocateMeButton = (Button) findViewById(R.id.NOTE_locateMe);
+    			locationLocateMeButton.setVisibility(View.GONE);
+    		}
+    		//--------------------------
     	} else {
     		mTitleText.setText("[title]");
     		//mTimeText.setText("[body]"); //isn't editable for CREATE
@@ -230,7 +242,7 @@ public class NoteEdit extends Activity {
     	if (mRowId == null) { // create 
         	Date myDate = new Date(System.currentTimeMillis());
         	time = myDate.toGMTString();
-        	location = "Berkeley, CA";
+        	location = "";
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
     				photo, knit, location, latitude, longitude);
     		if (id > 0) {
@@ -284,6 +296,10 @@ public class NoteEdit extends Activity {
 				outstream = getContentResolver().openOutputStream(uri);
 		        x.compress(Bitmap.CompressFormat.JPEG, 100, outstream);
 		        outstream.close();
+		        
+        		ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
+        		photoImageButton.setImageBitmap(x);
+        		photoImageButton.setVisibility(View.VISIBLE);
 		        
         	} catch (Exception e) {
         		Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
