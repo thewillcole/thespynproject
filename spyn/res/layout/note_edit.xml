@@ -125,19 +125,19 @@
 
 		<!-- picture buttons -->
 		<LinearLayout android:orientation="horizontal"
-			android:layout_width="wrap_content"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
-			<LinearLayout android:orientation="horizontal"
+			<LinearLayout android:orientation="vertical"
 				android:background="@color/color1"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
 				<Button android:id="@+id/NOTE_photoCaptureButton"
-					android:text="take photo" android:layout_width="wrap_content"
+					android:text="take photo" android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
 				<ImageButton android:id="@+id/NOTE_photoPreviewButton" android:visibility="gone"
-					android:layout_width="50dip" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
+					android:layout_width="fill_parent" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
 			</LinearLayout>
-			<LinearLayout android:orientation="horizontal"
+			<LinearLayout android:orientation="vertical"
 				android:background="@color/color2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
@@ -145,7 +145,7 @@
 					android:text="scan knit" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
 				<ImageButton android:id="@+id/NOTE_knitPreviewButton" android:visibility="gone"
-					android:layout_width="50dip" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
+					android:layout_width="fill_parent" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
 			</LinearLayout>
 		</LinearLayout>
 
