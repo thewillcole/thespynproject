@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore.Video;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -85,6 +86,7 @@ public class NoteEdit extends Activity {
         Button audioPreviewButtonButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
         Button locateMeButton = (Button) findViewById(R.id.NOTE_locateMe);
         Button photoCaptureButtonButton = (Button) findViewById(R.id.NOTE_photoCaptureButton);
+        Button videoCaptureButtonButton = (Button) findViewById(R.id.NOTE_videoCaptureButton);
         // locateMe
         locateMeButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
@@ -105,9 +107,9 @@ public class NoteEdit extends Activity {
         		
         		if (tempAudioButtonText.getText().toString().equals("record")) {
         			tempAudioButtonText.setText("stop");        			
-        			String path = RecordMe.getVideoPathFromId(mRowId, mAudioText.getText().toString());
+        			//String path = RecordMe.getAudioPathFromId(mRowId, mAudioText.getText().toString());
             		Toast.makeText(NoteEdit.this, "start"/*: " + path*/, Toast.LENGTH_SHORT).show();
-            		String newAudioText = "" + RecordMe.startRecord(path);
+            		String newAudioText = "" + RecordMe.startRecord(mRowId, mAudioText.getText().toString());
             		mAudioText.setText(newAudioText);
             		
         		} else {
@@ -124,7 +126,7 @@ public class NoteEdit extends Activity {
         //play AUDIO
         audioPreviewButtonButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
-        		String path = RecordMe.getVideoPathFromId(mRowId, mAudioText.getText().toString());
+        		String path = RecordMe.getAudioPathFromId(mRowId, mAudioText.getText().toString());
         		Toast.makeText(NoteEdit.this, "play"/*: " + path*/, Toast.LENGTH_SHORT).show();
         		RecordMe.playRecord(NoteEdit.this, path); }});
         
@@ -141,6 +143,11 @@ public class NoteEdit extends Activity {
         		//photoImageButton.setVisibility(View.VISIBLE);
         		
         	}});
+        // take VIDEO
+        videoCaptureButtonButton.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View view) {
+        		callVideo();
+        	}});
         
         //------------------
         // POPULATE AND SAVE
@@ -154,6 +161,12 @@ public class NoteEdit extends Activity {
     	Toast.makeText(NoteEdit.this, "take photo; hit \"attach\"", Toast.LENGTH_SHORT).show();
 		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         startActivityForResult(intent,Spyn.ACTIVITY_PHOTO);
+    }
+    
+    private void callVideo() {
+    	Toast.makeText(NoteEdit.this, "take video; hit \"attach\"", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent("android.media.action.VIDEO_CAPTURE");
+        startActivityForResult(intent,Spyn.ACTIVITY_VIDEO);
     }
     
     private void populateFields() {
@@ -264,61 +277,79 @@ public class NoteEdit extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
         super.onActivityResult(requestCode, resultCode, returnIntent);
-        
-        if (resultCode == RESULT_OK && requestCode != Spyn.ACTIVITY_PHOTO) {
-        	//Toast.makeText(this, "NOTEEDIT: resultCode \"ok\"", Toast.LENGTH_SHORT).show();	
-        	if (returnIntent!=null) {
-            	//Toast.makeText(this, "NOTEEDIT: Obtained result from LOCATEME", Toast.LENGTH_SHORT).show();
-            	returnIntent.hasExtra(NotesDbAdapter.KEY_LOCATION_LAT);
-            	String myTempLoc = returnIntent.getStringExtra(NotesDbAdapter.KEY_LOCATION);
-            	double myTempLat = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LAT, 0.0);
-            	double myTempLon = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LON, 0.0);
-            	//Toast.makeText(this, "City: " + myTempLoc + ", pi: " + myTempLat + ", phi: " + myTempLon, Toast.LENGTH_SHORT).show();
-            	mLocationText.setText(myTempLoc);
-            	mLatitudeText.setText(Double.toString(myTempLat));
-            	mLongitudeText.setText(Double.toString(myTempLon));
-            	saveState();
-            } else {
-            	Toast.makeText(this, "ERROR:\nNOTEEDIT: LOCATEME returned no intent", Toast.LENGTH_SHORT).show();
-            }
+        if (resultCode == RESULT_OK) {
         	
-        } else if (resultCode == RESULT_CANCELED) {
-        	Toast.makeText(this, "ERROR:\nNOTEEDIT: resultCode \"cancelled\"", Toast.LENGTH_SHORT).show();
-        	
-        } else if (requestCode == Spyn.ACTIVITY_PHOTO && resultCode == RESULT_OK) {
-        	Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
-        	try {
-        		Bitmap x = (Bitmap) returnIntent.getExtras().get("data");
-        		String path = RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString());
+        	if (requestCode == Spyn.ACTIVITY_VIDEO) {
+        		// set play button visibility
+        		Button video_VIS = (Button) findViewById(R.id.NOTE_videoPreviewButton);
+        		if (video_VIS.getVisibility() != View.VISIBLE) { video_VIS.setVisibility(View.VISIBLE); }
+        		try {
+        			
+        			File recfile = new File(RecordMe.getVideoPathFromId(mRowId, mVideoText.getText().toString()));
+        			if (recfile.exists()) { recfile.delete(); }
+        			recfile.createNewFile();
+        			Uri uri = Uri.fromFile(recfile);
+        			OutputStream outstream = getContentResolver().openOutputStream(uri);
+        			outstream.write((byte[])returnIntent.getExtras().get("data"));
+        			outstream.close();
+        		} catch (Exception e) {
+        			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
+        		}
+
+        		
+        	} else if (requestCode != Spyn.ACTIVITY_PHOTO) {
+        		//Toast.makeText(this, "NOTEEDIT: resultCode \"ok\"", Toast.LENGTH_SHORT).show();	
+        		if (returnIntent!=null) {
+        			//Toast.makeText(this, "NOTEEDIT: Obtained result from LOCATEME", Toast.LENGTH_SHORT).show();
+        			returnIntent.hasExtra(NotesDbAdapter.KEY_LOCATION_LAT);
+        			String myTempLoc = returnIntent.getStringExtra(NotesDbAdapter.KEY_LOCATION);
+        			double myTempLat = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LAT, 0.0);
+        			double myTempLon = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LON, 0.0);
+        			//Toast.makeText(this, "City: " + myTempLoc + ", pi: " + myTempLat + ", phi: " + myTempLon, Toast.LENGTH_SHORT).show();
+        			mLocationText.setText(myTempLoc);
+        			mLatitudeText.setText(Double.toString(myTempLat));
+        			mLongitudeText.setText(Double.toString(myTempLon));
+        			saveState();
+        		} else {
+        			Toast.makeText(this, "ERROR:\nNOTEEDIT: LOCATEME returned no intent", Toast.LENGTH_SHORT).show();
+        		}
+
+        	} else if (requestCode == Spyn.ACTIVITY_PHOTO) {
+        		Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
+        		try {
+        			Bitmap x = (Bitmap) returnIntent.getExtras().get("data");
+        			String path = RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString());
         			//Environment.getExternalStorageDirectory() + "/" + "TESTTEST" + ".png";
-				File recfile = new File(path);
-				if (recfile.exists()) { recfile.delete(); }
-				recfile.createNewFile();
-				Uri uri = Uri.fromFile(recfile);
-				OutputStream outstream;
-				outstream = getContentResolver().openOutputStream(uri);
-		        x.compress(Bitmap.CompressFormat.JPEG, 100, outstream);
-		        outstream.close();
-		        
-        		ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
-        		photoImageButton.setImageBitmap(x);
-        		photoImageButton.setVisibility(View.VISIBLE);
-		        
-        	} catch (Exception e) {
-        		Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
+        			File recfile = new File(path);
+        			if (recfile.exists()) { recfile.delete(); }
+        			recfile.createNewFile();
+        			Uri uri = Uri.fromFile(recfile);
+        			OutputStream outstream;
+        			outstream = getContentResolver().openOutputStream(uri);
+        			x.compress(Bitmap.CompressFormat.JPEG, 100, outstream);
+        			outstream.close();
+
+        			ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
+        			photoImageButton.setImageBitmap(x);
+        			photoImageButton.setVisibility(View.VISIBLE);
+
+        		} catch (Exception e) {
+        			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
+        		}
+        		//        	mPhotoText.setText(
+        		//	        		"" + (1 + 
+        		//	        				Integer.parseInt(
+        		//	        						mPhotoText.getText().toString())));
+        		//populateFields();
+        		Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
+
+        	}	else {
+        		Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
         	}
-//        	mPhotoText.setText(
-//	        		"" + (1 + 
-//	        				Integer.parseInt(
-//	        						mPhotoText.getText().toString())));
-	        //populateFields();
-        	Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
-        	
-        }	else {
-        	Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
+
+        } else if (resultCode == RESULT_CANCELED){
+        	Toast.makeText(this, "ERROR:\nNOTEEDIT: resultCode \"cancelled\"", Toast.LENGTH_SHORT).show();
         }
-        
-        
     }
     
     public void callLocateMe() {

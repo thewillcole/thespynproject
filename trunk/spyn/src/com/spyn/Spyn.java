@@ -34,6 +34,7 @@ public class Spyn extends ListActivity {
     private static final int ACTIVITY_EDIT=1;
     private static final int ACTIVITY_VIEW=2;
     public static final int ACTIVITY_PHOTO=3;
+    public static final int ACTIVITY_VIDEO=4;
     
     public static final int ACTIVITY_CREATE_PHOTO= 11;
     public static final int ACTIVITY_CREATE_SCAN= 12;
@@ -106,16 +107,14 @@ public class Spyn extends ListActivity {
     }
     
     public void callCreateMemory(int rowcount) {
-    	Intent i = new Intent();
-    	//i.putExtra(ScanMe.INTENT_AVGROW, rowcount);
-    	i.setClassName("com.spyn", "com.spyn.NoteEdit");
+    	Intent i = new Intent(this, NoteEdit.class);
+//    	try {
+//    		i.putExtra(ScanMe.INTENT_AVGROW, rowcount);
+//    	} catch (Exception e) {
+//    		Toast.makeText(Spyn.this, "Exception E:\n" + e, Toast.LENGTH_SHORT).show();
+//    	}
         i.setAction(NotesDbAdapter.ACTION_CREATE);
-//        
-//    	Bundle bundle = new Bundle();
-//    	bundle.putInt(ScanMe.INTENT_AVGROW, rowcount);
-//    	i.putExtras(bundle);
-        startActivity(i);
-    	
+        startActivityForResult(i, ACTIVITY_CREATE_CREATE);
     }
     
     public void fillMap() {

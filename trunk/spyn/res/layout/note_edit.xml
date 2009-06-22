@@ -105,6 +105,7 @@
 					android:text="record" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
 				<Button android:id="@+id/NOTE_videoPreviewButton"
+					android:visibility="invisible"
 					android:text="play" android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
 			</LinearLayout>
