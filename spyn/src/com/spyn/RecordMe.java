@@ -1,7 +1,6 @@
 package com.spyn;
 
 import java.io.File;
-
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -32,47 +31,45 @@ public class RecordMe {
 		    if (!path.startsWith("/")) {
 		      path = "/" + path;
 		    }
-		    if (!path.contains(".")) {
-		      path += ".3gp";
-		    }
 		    return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
 	 }
-	public static String getVideoPathFromId(long rowID, String videoID){
-		return "SPYN_rowID_" + rowID + "_audio_" + videoID;
-	}
-	public static int getVideoIdFromPath(String path) {
-		return Integer.parseInt(path.substring(path.lastIndexOf("_") + 1));
+	public static String getAudioPathFromId(long rowID, String audioID){
+		return sanitizePath("SPYN_rowID_" + rowID + "_audio_" + audioID + ".3gp");
 	}
 	
 	public static String getPhotoPathFromId(long rowID, String photoID) {
 		return sanitizePath("SPYN_rowID_" + rowID + "_photo_" + photoID + ".png");
 	}
 	
-	public static int getPhotoIdFromPath(String path) {
-		return Integer.parseInt(path.substring(path.lastIndexOf("_") + 1));
+	public static String getVideoPathFromId(long rowID, String videoID) {
+		return sanitizePath("SPYN_rowID_" + rowID + "_audio_" + videoID + ".3gp");
 	}
 	
-	public static int startRecord(String path) {
+	public static int getIdFromPath(String path) {
+		path = path.substring(path.lastIndexOf("_") + 1); //remove all before Id
+		path = path.substring(0, path.lastIndexOf(".") - 1); //remove extension
+		return Integer.parseInt(path);
+	}
+	
+	public static int startRecord(long rowID, String audioID) {
 		//-----------------------------------------------------------------
 		//http://www.benmccann.com/dev-blog/android-audio-recording-tutorial/
 		//-----------------------------------------------------------------
-		int videoID = getVideoIdFromPath(path);
-		String videoPath = path.substring(0, path.lastIndexOf("_") + 1);
+		int audioIdInt = Integer.parseInt(audioID);
 		if (!isRecording) {			
-			videoID++;
-			videoPath += videoID;
+			audioIdInt++;
 			MediaRecorder recorder = getMediaRecorder();
 			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 			recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-			recorder.setOutputFile(sanitizePath(videoPath));
+			recorder.setOutputFile(getAudioPathFromId(rowID, Integer.toString(audioIdInt)));
 			recorder.prepare();
 			recorder.start();
 			isRecording = true;
-			return  videoID;
+			return audioIdInt;
 		} else {
 			stopRecord();
-			return videoID;
+			return audioIdInt;
 		}
 		//------------------------------------------------------------------
 		/*
@@ -100,7 +97,7 @@ public class RecordMe {
 		if (isRecording) {
 			stopRecord();
 		}
-		MediaPlayer mp = MediaPlayer.create(context, Uri.fromFile(new File(sanitizePath(path))));
+		MediaPlayer mp = MediaPlayer.create(context, Uri.fromFile(new File(path)));
 		mp.start();
 	}
 }
