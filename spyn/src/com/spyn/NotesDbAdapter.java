@@ -46,6 +46,7 @@ public class NotesDbAdapter {
     public static final String KEY_LOCATION = "location";
     public static final String KEY_LOCATION_LAT = "latitude";
     public static final String KEY_LOCATION_LON = "longitude";
+    public static final String KEY_ROWCOUNT = "rowcount";
     public static final String KEY_ROWID = "_id";
     
     public static final String ACTION_CREATE = "create";
@@ -63,7 +64,7 @@ public class NotesDbAdapter {
             "create table notes (_id integer primary key autoincrement, "
                     + "title text not null, time text not null, body text not null, "
                     + "video int not null, audio int not null, photo int not null, knit int not null, "
-                    + "location text not null, latitude double not null, longitude double not null);";
+                    + "location text not null, latitude double not null, longitude double not null, rowcount int not null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "notes";
@@ -132,7 +133,7 @@ public class NotesDbAdapter {
      * @return rowId or -1 if failed
      */
     public long createNote(String title, String time, String body, int video, int audio, 
-    		int photo, int knit, String location, double latitude, double longitude) {
+    		int photo, int knit, String location, double latitude, double longitude, int rowcount) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_TITLE, title);
         initialValues.put(KEY_TIME, time);
@@ -144,6 +145,7 @@ public class NotesDbAdapter {
         initialValues.put(KEY_LOCATION, location);
         initialValues.put(KEY_LOCATION_LAT, latitude);
         initialValues.put(KEY_LOCATION_LON, longitude);
+        initialValues.put(KEY_ROWCOUNT, rowcount);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -168,7 +170,8 @@ public class NotesDbAdapter {
 
         return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_TITLE,
                 KEY_TIME, KEY_BODY, KEY_VIDEO, KEY_AUDIO, KEY_PHOTO, KEY_KNIT,
-                KEY_LOCATION, KEY_LOCATION_LAT, KEY_LOCATION_LON}, null, null, null, null, null);
+                KEY_LOCATION, KEY_LOCATION_LAT, KEY_LOCATION_LON, KEY_ROWCOUNT}, 
+                null, null, null, null, null);
     }
 
     /**
@@ -185,8 +188,8 @@ public class NotesDbAdapter {
                 mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
                         KEY_TITLE, KEY_TIME, KEY_BODY, KEY_VIDEO, KEY_AUDIO, 
                         KEY_PHOTO, KEY_KNIT, KEY_LOCATION, KEY_LOCATION_LAT,
-                        KEY_LOCATION_LON}, KEY_ROWID + "=" + rowId, null,
-                        null, null, null, null);
+                        KEY_LOCATION_LON, KEY_ROWCOUNT}, KEY_ROWID + "=" + rowId, 
+                        null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }

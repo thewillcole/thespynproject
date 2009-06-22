@@ -37,7 +37,6 @@ public class NoteEdit extends Activity {
     private String mAction;
 	private TextView mTimeText;
 	private TextView mLocationText;
-	
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +72,7 @@ public class NoteEdit extends Activity {
         		: null;
         if (mRowId == null) {
         	Bundle extras = getIntent().getExtras(); 
-        	mRowId = extras != null ? extras.getLong(NotesDbAdapter.KEY_ROWID) 
-        			: null;
+        	mRowId = extras != null ? extras.getLong(NotesDbAdapter.KEY_ROWID) : null;
         }
 
         //-------------
@@ -243,11 +241,16 @@ public class NoteEdit extends Activity {
         	Date myDate = new Date(System.currentTimeMillis());
         	time = myDate.toGMTString();
         	location = "";
+        	int rowcount = 0;
+        	//Intent intent = getIntent();
+        	//rowcount = intent.getExtras().getInt(ScanMe.INTENT_AVGROW);
+        	//rowcount = (int) intent.getIntExtra(ScanMe.INTENT_AVGROW, -1);
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
-    				photo, knit, location, latitude, longitude);
+    				photo, knit, location, latitude, longitude, rowcount);
     		if (id > 0) {
     			mRowId = id;
     		}
+    		Toast.makeText(this, "SAVED WITH ROW: " + rowcount, Toast.LENGTH_LONG).show();
     	} else { // edit
     		time = mTimeText.getText().toString();
     		location = mLocationText.getText().toString();
