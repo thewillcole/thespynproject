@@ -36,6 +36,8 @@
 		<activity android:name="NoteEdit"></activity>
 		
 		<activity android:name="ScanMe"></activity>
+		
+		<activity android:name="RecallMe"></activity>
 
 	</application>
 </manifest>
