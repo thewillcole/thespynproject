@@ -30,15 +30,21 @@ import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class Spyn extends ListActivity {
+	public static int SPYN_ROWCOUNT;
+	
     private static final int ACTIVITY_CREATE=0;
     private static final int ACTIVITY_EDIT=1;
     private static final int ACTIVITY_VIEW=2;
     public static final int ACTIVITY_PHOTO=3;
     public static final int ACTIVITY_VIDEO=4;
     
+    //create new memeory
     public static final int ACTIVITY_CREATE_PHOTO= 11;
     public static final int ACTIVITY_CREATE_SCAN= 12;
     public static final int ACTIVITY_CREATE_CREATE= 13;
+    
+    //scan recall
+    public static final int ACTIVITY_RECALL_PHOTO= 21;
     
     //private static final int INSERT_ID = Menu.FIRST;
     private static final int MENU_ADD = -1;
@@ -65,7 +71,8 @@ public class Spyn extends ListActivity {
         //this will later change.
         button_scan.setOnClickListener(new OnClickListener() {
         	public void onClick(View v) {
-        		Toast.makeText(Spyn.this, "Scan For Memories\nNot Implemented", Toast.LENGTH_SHORT).show();
+        		Toast.makeText(Spyn.this, "Scan Recall", Toast.LENGTH_SHORT).show();
+        		callPhotographMe(ACTIVITY_RECALL_PHOTO);
         	}});
         //MAP
         final Button button_map = (Button) findViewById(R.id.button_map);
@@ -93,10 +100,10 @@ public class Spyn extends ListActivity {
         setListAdapter(notes);
     }
     
-    public void callPhotographMe() {
+    public void callPhotographMe(int activity) {
     	Toast.makeText(Spyn.this, "Tap \"Attach\" to save after you take the picture.", Toast.LENGTH_LONG).show();
     	Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        startActivityForResult(intent,Spyn.ACTIVITY_CREATE_PHOTO);
+        startActivityForResult(intent,activity);
     }
     
     public void callScanMe(Bitmap bitmap) {
@@ -106,15 +113,18 @@ public class Spyn extends ListActivity {
     	startActivityForResult(i, ACTIVITY_CREATE_SCAN);
     }
     
+    public void callRecallMe(Bitmap bitmap) {
+    	Intent i = new Intent(this, RecallMe.class);
+    	i.putExtra(ScanMe.INTENT_BITMAP, bitmap);
+    	i.setAction(ScanMe.ACTION_STORE);
+    	startActivity(i);
+    }
+    
     public void callCreateMemory(int rowcount) {
-    	Intent i = new Intent(this, NoteEdit.class);
-//    	try {
-//    		i.putExtra(ScanMe.INTENT_AVGROW, rowcount);
-//    	} catch (Exception e) {
-//    		Toast.makeText(Spyn.this, "Exception E:\n" + e, Toast.LENGTH_SHORT).show();
-//    	}
-        i.setAction(NotesDbAdapter.ACTION_CREATE);
-        startActivityForResult(i, ACTIVITY_CREATE_CREATE);
+    	Intent cmIntent = new Intent(this, NoteEdit.class);
+    	SPYN_ROWCOUNT = rowcount;
+    	cmIntent.setAction(NotesDbAdapter.ACTION_CREATE);
+        startActivityForResult(cmIntent, ACTIVITY_CREATE_CREATE);
     }
     
     public void fillMap() {
@@ -144,7 +154,7 @@ public class Spyn extends ListActivity {
         	return true;
         case MENU_SCAN:
         	//
-        	callPhotographMe();
+        	callPhotographMe(Spyn.ACTIVITY_CREATE_PHOTO);
         	return true;
         case MENU_EDIT:
         	//
@@ -204,9 +214,14 @@ public class Spyn extends ListActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==Spyn.ACTIVITY_CREATE_PHOTO && resultCode==Activity.RESULT_OK) {
+        if (requestCode==Spyn.ACTIVITY_RECALL_PHOTO&& resultCode==Activity.RESULT_OK) {
+        	//recall: photo => recall
         	Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-        	Toast.makeText(this, "PHOTO returned", Toast.LENGTH_LONG).show();
+        	callRecallMe(bitmap);
+        	Toast.makeText(this, "PHOTO returned to SCAN", Toast.LENGTH_LONG).show();
+        } else if (requestCode==Spyn.ACTIVITY_CREATE_PHOTO && resultCode==Activity.RESULT_OK) {
+        	Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+        	Toast.makeText(this, "PHOTO returned to CREATE", Toast.LENGTH_LONG).show();
         	callScanMe(bitmap);
         } else if (requestCode==Spyn.ACTIVITY_CREATE_SCAN && resultCode==Activity.RESULT_OK) {
         	int rowcount = (int) data.getIntExtra(ScanMe.INTENT_AVGROW, -1);

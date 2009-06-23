@@ -254,10 +254,7 @@ public class NoteEdit extends Activity {
         	Date myDate = new Date(System.currentTimeMillis());
         	time = myDate.toGMTString();
         	location = "";
-        	int rowcount = 0;
-        	//Intent intent = getIntent();
-        	//rowcount = intent.getExtras().getInt(ScanMe.INTENT_AVGROW);
-        	//rowcount = (int) intent.getIntExtra(ScanMe.INTENT_AVGROW, -1);
+        	int rowcount = Spyn.SPYN_ROWCOUNT;
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
     				photo, knit, location, latitude, longitude, rowcount);
     		if (id > 0) {
