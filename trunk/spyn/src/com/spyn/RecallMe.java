@@ -14,20 +14,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class RecallMe extends Activity {
 	
 	private int MAX_ROW;
 	private NotesDbAdapter mDbHelper;
+	private LinearLayout layout;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,9 +37,13 @@ public class RecallMe extends Activity {
         mDbHelper.open();
 		Intent intent = getIntent();
 		Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
-		ImageView imageView = new ImageView(this);
-		imageView.setImageBitmap(bitmap);
-		setContentView(imageView);
+		
+        layout = new LinearLayout(this);
+        layout.setLayoutParams( new
+                        ViewGroup.LayoutParams( LayoutParams.FILL_PARENT,
+                        LayoutParams.FILL_PARENT ) ); 
+        layout.setBackgroundDrawable(new BitmapDrawable(bitmap));
+        this.setContentView(layout); 
 		
 		Toast.makeText(this, "RECALL is working", Toast.LENGTH_LONG).show();
 		
@@ -46,6 +51,8 @@ public class RecallMe extends Activity {
 		//EMULATION CODE
 		MAX_ROW = 23;
 		getRowIDsAndRowCounts();
+		addButton(50, 30, 0);
+		addButton(34, 89, 0);
 	}
 	
     public void getRowIDsAndRowCounts() {
@@ -72,32 +79,29 @@ public class RecallMe extends Activity {
     			Toast.makeText(this, "RECALL:\nERROR:\nE\n" + e, Toast.LENGTH_LONG).show();
     		}
     		notes.moveToNext();
-
     	}
     }
     
-    public void addButton() {
-        RelativeLayout layout = new RelativeLayout(this);
-        layout.setLayoutParams( new
-                        ViewGroup.LayoutParams( LayoutParams.FILL_PARENT,
-                        LayoutParams.FILL_PARENT ) ); 
-        
-       //setContentView(new SampleView(this));
-        ImageButton imgb1 = new ImageButton(this);
-        imgb1.setImageResource(R.drawable.pin_v3);
-        imgb1.setAdjustViewBounds(true);
-        imgb1.setId(5);
-        imgb1.setOnClickListener(new OnClickListener() {
+    public void callNoteEdit() {
+    	Toast.makeText(RecallMe.this, "BUTTON!", Toast.LENGTH_LONG).show();
+    }
+    
+    public void addButton(int xPos, int yPos, int rowID) {
+        ImageButton imgb = new ImageButton(this);
+        imgb.setImageResource(R.drawable.pin_v3);
+        imgb.setAdjustViewBounds(true);
+        imgb.setId(rowID);// was 5
+        imgb.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                //Call Note_Edit
+            	// HOW DO I GET THE ID?
+            	callNoteEdit();
             }
         });    
         
-        RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams
-        (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                        params1.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                    layout.addView(imgb1, params1); 
-        this.setContentView(layout); 
+        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        params1.width = 30; params1.height = 30;
+        params1.leftMargin = xPos; params1.topMargin = 400-yPos;
+        layout.addView(imgb, params1);
     }
 	
 }
