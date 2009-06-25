@@ -257,15 +257,18 @@ public class ScanMe extends Activity {
 
 		Float avgRow;
 		if (mode>1) {
-		// return row count (this takes int ceiling of the float)
+			// return row count (this takes int ceiling of the float)
 			//Toast.makeText(this, "ROWCOUNTIZZLE: " + avgrow, Toast.LENGTH_LONG * 10).show();
 			avgRow = new Float(mode);
-			return avgRow.intValue() + 1;
-		} else {
+		} else if (med>1) {
 			avgRow = new Float (med);
+		} else {
+			avgRow = new Float (avg);
 		}
+
+		return avgRow.intValue() + 1;
 		// error: the for-loop was never executed
-		return -1;
+		// return -1;
 	}
 	//---------------------
 
