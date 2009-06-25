@@ -34,7 +34,7 @@ public class Spyn extends ListActivity {
 	
     private static final int ACTIVITY_CREATE=0;
     private static final int ACTIVITY_EDIT=1;
-    private static final int ACTIVITY_VIEW=2;
+    public static final int ACTIVITY_VIEW=2;
     public static final int ACTIVITY_PHOTO=3;
     public static final int ACTIVITY_VIDEO=4;
     
