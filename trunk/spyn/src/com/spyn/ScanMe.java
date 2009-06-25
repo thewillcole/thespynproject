@@ -255,12 +255,14 @@ public class ScanMe extends Activity {
 				}
 			}
 
-
+		Float avgRow;
 		if (mode>1) {
 		// return row count (this takes int ceiling of the float)
 			//Toast.makeText(this, "ROWCOUNTIZZLE: " + avgrow, Toast.LENGTH_LONG * 10).show();
-			Float avgRow = new Float(mode);
+			avgRow = new Float(mode);
 			return avgRow.intValue() + 1;
+		} else {
+			avgRow = new Float (med);
 		}
 		// error: the for-loop was never executed
 		return -1;
