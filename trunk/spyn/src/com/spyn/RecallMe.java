@@ -20,24 +20,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class RecallMe extends Activity {
 	
 	private int MAX_ROW;
+	private int SCREEN_WIDTH = 50;
+	private int SCREEN_HEIGHT = 300;
+	
 	private NotesDbAdapter mDbHelper;
 	private LinearLayout layout;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		//SETUP
         mDbHelper = new NotesDbAdapter(this);
         mDbHelper.open();
 		Intent intent = getIntent();
 		Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
-		
         layout = new LinearLayout(this);
         layout.setLayoutParams( new
                         ViewGroup.LayoutParams( LayoutParams.FILL_PARENT,
@@ -45,30 +49,49 @@ public class RecallMe extends Activity {
         layout.setBackgroundDrawable(new BitmapDrawable(bitmap));
         this.setContentView(layout); 
 		
-		Toast.makeText(this, "RECALL is working", Toast.LENGTH_LONG).show();
-		
-		
 		//EMULATION CODE
-		MAX_ROW = 23;
+		MAX_ROW = ScanMe.processImg(bitmap);
 		getRowIDsAndRowCounts();
-		addButton(50, 30, 0);
-		addButton(34, 89, 0);
+		
+		//TEARDOWN
+		mDbHelper.close();
 	}
 	
     public void getRowIDsAndRowCounts() {
     	Cursor notes = mDbHelper.fetchAllNotes();
-    	int[] rowIDs = new int[notes.getCount()];
-    	int[] rowCounts = new int[notes.getCount()];
     	notes.moveToNext();
-    	for (int i = 0; i < notes.getCount(); i++) {
-    		try {	
-    			rowIDs[i] = Integer.parseInt(
+    	//notes.isBeforeFirst()
+    	while (!notes.isAfterLast()) {
+    		try {
+    			
+    			int yPos;// = (int) (SCREEN_HEIGHT*Math.random()) + 10;
+    			int xPos = (int) (SCREEN_WIDTH*Math.random()) + 10;
+    			int rowID = Integer.parseInt(
     					notes.getString(
     							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWID)));
-    			
-    			rowCounts[i] = Integer.parseInt(
+    			int rowCount = Integer.parseInt(
     					notes.getString(
     							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWCOUNT)));
+    			String title = notes.getString(
+    							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_TITLE));
+    			int photoID = Integer.parseInt(
+    					notes.getString(
+    							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_PHOTO)));
+    			int knitID = Integer.parseInt(
+    					notes.getString(
+    							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_KNIT)));
+    			int audioID = Integer.parseInt(
+    					notes.getString(
+    							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_AUDIO)));
+    			int videoID = Integer.parseInt(
+    					notes.getString(
+    							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_VIDEO)));
+    			
+    			if (rowCount <= MAX_ROW) {
+    				yPos = (rowCount/MAX_ROW)*SCREEN_HEIGHT;
+    				addButton(xPos, yPos, rowID, rowCount, title, photoID, knitID, audioID, videoID);
+    			}
+    			
     		} catch (NumberFormatException nfe) {
     			Toast.makeText(this, "RECALL:\nERROR:\nNFE\n" + nfe, Toast.LENGTH_LONG).show();
     		} catch (IllegalArgumentException iae) {
@@ -82,25 +105,46 @@ public class RecallMe extends Activity {
     	}
     }
     
-    public void callNoteEdit() {
-    	Toast.makeText(RecallMe.this, "BUTTON!", Toast.LENGTH_LONG).show();
+    public void callNoteEdit(int rowID) {
+    	Intent i = new Intent(RecallMe.this, NoteEdit.class); // NoteView
+        i.putExtra(NotesDbAdapter.KEY_ROWID, (long)rowID);
+        i.setAction(NotesDbAdapter.ACTION_VIEW);
+        startActivity(i);
+        
     }
     
-    public void addButton(int xPos, int yPos, int rowID) {
-        ImageButton imgb = new ImageButton(this);
-        imgb.setImageResource(R.drawable.pin_v3);
-        imgb.setAdjustViewBounds(true);
+    public void addButton(int xPos, int yPos, final int rowID, final int rowCount, final String title,
+    		final int photoID, final int knitID, final int audioID, final int videoID) {
+        final ImageView imgb = new ImageView(this);
+        imgb.setImageResource(R.drawable.pin_v1);
         imgb.setId(rowID);// was 5
         imgb.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	// HOW DO I GET THE ID?
-            	callNoteEdit();
+            	ImageView myImageView = imgb;
+            	int myRowID = rowID; //int id = imgb.getId();
+            	String myTitle = title; int myRowCount = rowCount;
+            	int myPhotoID = photoID; int myKnitID = knitID;
+            	int myAudioID = audioID; int myVideoID = videoID;
+            	
+            	boolean hasBeenClicked = false;
+            	
+            	callNoteEdit(myRowID);
+            	Toast.makeText(RecallMe.this, myTitle + "\n" + myRowID, Toast.LENGTH_SHORT).show();
+            	
+//            	if (hasBeenClicked) {
+//            	callNoteEdit(myRowID);
+//            	Toast.makeText(RecallMe.this, myTitle + "\n" + myRowID, Toast.LENGTH_SHORT).show();
+//            	} else {
+//            		hasBeenClicked = true;
+//            		myImageView.setImageResource(R.drawable.pin_v2);
+//            		//myImageView.setImageBitmap("");
+//            	}
             }
         });    
         
         LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        params1.width = 30; params1.height = 30;
-        params1.leftMargin = xPos; params1.topMargin = 400-yPos;
+        params1.width = 75; params1.height = 75;
+        params1.leftMargin = 0; params1.topMargin = yPos;
         layout.addView(imgb, params1);
     }
 	
