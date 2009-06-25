@@ -230,10 +230,10 @@ public class Spyn extends ListActivity {
     	} else if (requestCode==Spyn.ACTIVITY_CREATE_CREATE && resultCode==Activity.RESULT_OK) {
     		Toast.makeText(this, "CREATE returned", Toast.LENGTH_LONG).show();
     	} else {
-        	Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
-        	Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
-        	Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
-        	Toast.makeText(this, requestCode + " " + resultCode, Toast.LENGTH_LONG).show();
+        	//Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
+        	//Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
+        	//Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
+        	//Toast.makeText(this, requestCode + " " + resultCode, Toast.LENGTH_LONG).show();
         }
         
         
