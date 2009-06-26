@@ -133,8 +133,6 @@
 				<ImageButton android:id="@+id/NOTE_photoCaptureButton"
 					android:src="@drawable/ic_menu_scan" android:layout_width="fill_parent"
 					android:layout_height="wrap_content" android:layout_marginLeft="38px"/>
-				<ImageButton android:id="@+id/NOTE_photoPreviewButton" android:visibility="gone"
-					android:layout_width="fill_parent" android:layout_height="wrap_content" />
 			</LinearLayout>
 		</LinearLayout>
 
@@ -148,7 +146,7 @@
 				android:layout_height="wrap_content">
 				
 				<ImageButton android:id="@+id/NOTE_photoPreviewButton" android:visibility="gone"
-					android:layout_width="fill_parent" android:layout_height="wrap_content" /><!-- android:src="@drawable/android"-->
+					android:layout_width="fill_parent" android:layout_height="wrap_content" />
 			</LinearLayout>
 			<LinearLayout android:orientation="vertical"
 				android:background="@color/color2"

@@ -13,13 +13,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore.Video;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -149,6 +150,19 @@ public class NoteEdit extends Activity {
         		//photoImageButton.setVisibility(View.VISIBLE);
         		
         	}});
+        // preview PHOTO
+        ImageButton photoPreviewButtonButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
+        photoPreviewButtonButton.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View view) {
+        		if (!mPhotoText.getText().toString().equals("0")) {
+        			Toast.makeText(NoteEdit.this, "SHOW", Toast.LENGTH_SHORT).show();
+        			String path = RecordMe.getPhotoPathFromId(mRowId,mAudioText.getText().toString());
+        			Bitmap bitmap = BitmapFactory.decodeFile(path);
+        			ImageView iv = new ImageView(NoteEdit.this); iv.setImageBitmap(bitmap);
+        			setContentView(iv);
+        		}
+        		
+        	}});
         // take VIDEO
         videoCaptureButtonButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
@@ -202,6 +216,17 @@ public class NoteEdit extends Activity {
     		//--------------------------
     		// Show playback buttons
     		//--------------------------
+    		if (!mPhotoText.getText().toString().equals("0")) {
+    			String path = RecordMe.getPhotoPathFromId(mRowId,mAudioText.getText().toString());
+    			Bitmap bitmap = BitmapFactory.decodeFile(path);
+    			ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
+    			if (photoImageButton.getVisibility()!=View.VISIBLE) {
+    				photoImageButton.setImageBitmap(bitmap);
+    				photoImageButton.setVisibility(View.VISIBLE);
+    			}
+    			//ImageView iv = new ImageView(this); iv.setImageBitmap(bitmap);
+    			//setContentView(iv);
+    		}
     		if (!mAudioText.getText().toString().equals("0")) { // show preview button: 
     			Button audioPreviewButtonButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
     			audioPreviewButtonButton.setVisibility(View.VISIBLE);
@@ -318,10 +343,19 @@ public class NoteEdit extends Activity {
         		}
 
         	} else if (requestCode == Spyn.ACTIVITY_PHOTO) {
-        		Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
+        		//Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
         		try {
         			Bitmap x = (Bitmap) returnIntent.getExtras().get("data");
-        			String path = RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString());
+        			//ImageView iv = new ImageView(this); iv.setImageBitmap(x);
+        			//setContentView(iv);
+        			
+		        	mPhotoText.setText(
+			        		"" + (1 + 
+			        				Integer.parseInt(
+			        						mPhotoText.getText().toString())));
+		        	saveState();
+   			
+		        	String path = RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString());
         			//Environment.getExternalStorageDirectory() + "/" + "TESTTEST" + ".png";
         			File recfile = new File(path);
         			if (recfile.exists()) { recfile.delete(); }
@@ -335,16 +369,15 @@ public class NoteEdit extends Activity {
         			ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
         			photoImageButton.setImageBitmap(x);
         			photoImageButton.setVisibility(View.VISIBLE);
+        			
+
 
         		} catch (Exception e) {
         			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
         		}
-        		//        	mPhotoText.setText(
-        		//	        		"" + (1 + 
-        		//	        				Integer.parseInt(
-        		//	        						mPhotoText.getText().toString())));
-        		//populateFields();
-        		Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
+
+        		populateFields();
+        		//Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
 
         	}	else {
         		Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
