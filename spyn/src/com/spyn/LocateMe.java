@@ -3,9 +3,9 @@ package com.spyn;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -13,26 +13,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.ZoomControls;
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 
-public class LocateMe extends MapActivity implements LocationListener {
-	/** Zoom Widget Variables **/
-	LinearLayout linearLayout; //handle for layout
-	MapView mapView; // handle for Map View
-	ZoomControls mZoom; // zoom control object // m stands for member or something
-	
-	/** Map Overlay Variables **/
-	List<Overlay> mapOverlays; // list of things to overlay on map
-	Drawable drawable; // this object holds an image (the marker)
-	LocateMeItemizedOverlay itemizedOverlay; // 
-	
+public class LocateMe extends Activity implements LocationListener {
 	/** android.location Variables **/
 	LocationManager locationManager; // location manager interfaces with hardware
 	Location myLocation; // contains coordinates and time. RETURNABLE object.
@@ -45,13 +28,9 @@ public class LocateMe extends MapActivity implements LocationListener {
 	public void onStop() {
 		super.onStop();
 		locationManager.removeUpdates(this); // detach location updates
-		
-		itemizedOverlay.clear();
-    	mapOverlays.clear(); // remove previous overlays
 
 		// Nullify instance vars to force the re-started app to re-create them
-		locationManager = null; itemizedOverlay = null; drawable = null; mapOverlays = null;
-		mZoom = null; mapView = null; linearLayout = null;
+		locationManager = null; 
 	}
 	
 	public void prepareReturnResult() {
@@ -82,18 +61,6 @@ public class LocateMe extends MapActivity implements LocationListener {
     @Override  /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.locateme_main);
-        
-        //----------------------//
-        ///////// MAP (ZOOM) /////
-        linearLayout = (LinearLayout) findViewById(R.id.zoomview);
-        mapView = (MapView) findViewById(R.id.mapview);
-        mZoom = (ZoomControls) mapView.getZoomControls(); //get zoom control from map view
-        // ^ this will work out of the box because it is already hooked up to the MapView
-        linearLayout.addView(mZoom); // plug ZoomControls into the LinearLayout
-        mapOverlays = mapView.getOverlays(); // returns arraylist's contents
-        drawable = this.getResources().getDrawable(R.drawable.pin_v1); // marker image (android bot)
-        itemizedOverlay = new LocateMeItemizedOverlay(drawable);   
         
         //------------------------//
         /////// LOCATION ///////////
@@ -117,16 +84,7 @@ public class LocateMe extends MapActivity implements LocationListener {
     
     // Any location change in location will call this method
     public void	onLocationChanged(Location location) {
-    	int myLocationLat = (int) (location.getLatitude()*1E6);
-    	int myLocationLon = (int) (location.getLongitude()*1E6);
-    	GeoPoint myLocation = new GeoPoint(myLocationLat, myLocationLon);
-    	OverlayItem myLocationOverlay = new OverlayItem(myLocation, "", "");
     	
-    	itemizedOverlay.clear();
-    	mapOverlays.clear(); // remove previous overlays
-    	
-    	itemizedOverlay.addOverlay(myLocationOverlay);
-    	mapOverlays.add(itemizedOverlay); // add overlay item to arraylist
     	Toast.makeText(LocateMe.this, "Found You!"/*"Location Change: " + changeNum++*/, Toast.LENGTH_SHORT).show();
     	
     	locationManager.removeUpdates(this); // Because only one location is needed,
@@ -158,11 +116,6 @@ public class LocateMe extends MapActivity implements LocationListener {
     }
     public void onStatusChanged(String provider, int status, Bundle extras) {
     	// overwritten to implement LocationListener interface.
-    }
-    
-    @Override
-    protected boolean isRouteDisplayed() {
-        return false;
     }
     
    

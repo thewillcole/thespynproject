@@ -59,8 +59,6 @@ public class NoteEdit extends Activity {
         Toast.makeText(NoteEdit.this, "Action: " + mAction, Toast.LENGTH_SHORT).show();
        
         mTimeText = (TextView) findViewById(R.id.NOTE_time);
-        mTitleText = (EditText) findViewById(R.id.NOTE_title);
-        mBodyText = (EditText) findViewById(R.id.NOTE_body);
         mVideoText = (TextView) findViewById(R.id.NOTE_video);
         mAudioText = (TextView) findViewById(R.id.NOTE_audio);
         mPhotoText = (TextView) findViewById(R.id.NOTE_photo);
@@ -68,6 +66,14 @@ public class NoteEdit extends Activity {
         mLatitudeText = (TextView) findViewById(R.id.NOTE_latitude);
         mLongitudeText = (TextView) findViewById(R.id.NOTE_longitude);
         mLocationText = (TextView) findViewById(R.id.NOTE_location);
+        if (!mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
+        	mTitleText = (EditText) findViewById(R.id.NOTE_title);
+        	mBodyText = (EditText) findViewById(R.id.NOTE_body);
+        } else {
+        	mTitleText = (TextView) findViewById(R.id.NOTE_title);
+        	mBodyText = (TextView) findViewById(R.id.NOTE_body);
+        }
+       
 
         mRowId = savedInstanceState != null ? savedInstanceState.getLong(NotesDbAdapter.KEY_ROWID) 
         		: null;
@@ -91,7 +97,7 @@ public class NoteEdit extends Activity {
         locateMeButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         		saveState();
-        		Toast.makeText(NoteEdit.this, "LocateMe", Toast.LENGTH_SHORT).show();
+        		//Toast.makeText(NoteEdit.this, "LocateMe", Toast.LENGTH_SHORT).show();
         		callLocateMe();
         		saveState(); }});
         // save
