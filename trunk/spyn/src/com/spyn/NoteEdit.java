@@ -217,12 +217,6 @@ public class NoteEdit extends Activity {
     		//--------------------------
     		// Show playback buttons
     		//--------------------------
-    		final String path = new String("C:\\Images\\DSC00822.jpg");
-            ImageButton imgButton = new ImageButton(this);
-    		
-    		//--------------------------
-    		// Show playback buttons
-    		//--------------------------
     		if (!mPhotoText.getText().toString().equals("0")) {
     			String path = RecordMe.getPhotoPathFromId(mRowId,mAudioText.getText().toString());
     			Bitmap bitmap = BitmapFactory.decodeFile(path);
