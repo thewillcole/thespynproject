@@ -38,7 +38,7 @@
 			 android:layout_height="fill_parent" android:background="@color/green"
 			android:layout_weight="1">
 			<Button android:id="@+id/button_map" android:layout_width="fill_parent"
-				android:text="Map of memories" android:layout_height="fill_parent" android:height="50px" android:padding="20px"/>
+				android:text="Map of memories" android:layout_height="fill_parent" android:height="50px"/>
 		</LinearLayout>
 	</LinearLayout>
 
