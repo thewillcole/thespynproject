@@ -28,7 +28,7 @@ public class RecallMe extends Activity {
 	
 	private int[] MAX_ROW;
 	private int SCREEN_WIDTH = 50;
-	private int SCREEN_HEIGHT = 300;
+	private int SCREEN_HEIGHT = 400;
 	
 	private NotesDbAdapter mDbHelper;
 	private LinearLayout layout;
@@ -87,7 +87,7 @@ public class RecallMe extends Activity {
     					notes.getString(
     							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_VIDEO)));
     			
-    			Toast.makeText(this, "ROWS SCANNED:" + MAX_ROW[0]+"Row: "+rowCount, Toast.LENGTH_LONG).show();
+    			//Toast.makeText(this, "ROWS SCANNED:" + MAX_ROW[0]+"Row: "+rowCount, Toast.LENGTH_LONG).show();
         		
     			if ((rowCount <= MAX_ROW[0])&&(rowCount!=0)) {
     				float fract = (float)rowCount/MAX_ROW[0];
@@ -133,7 +133,7 @@ public class RecallMe extends Activity {
             	boolean hasBeenClicked = false;
             	
             	callNoteEdit(myRowID);
-            	Toast.makeText(RecallMe.this, myTitle + "\n" + rowCount, Toast.LENGTH_SHORT).show();
+            	Toast.makeText(RecallMe.this, "Message at row:" + rowCount, Toast.LENGTH_SHORT).show();
             	
 //            	if (hasBeenClicked) {
 //            	callNoteEdit(myRowID);
