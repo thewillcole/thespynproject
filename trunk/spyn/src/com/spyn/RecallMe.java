@@ -58,6 +58,7 @@ public class RecallMe extends Activity {
 	}
 	
     public void getRowIDsAndRowCounts() {
+    	boolean foundmessage = false;
     	Cursor notes = mDbHelper.fetchAllNotes();
     	notes.moveToNext();
     	//notes.isBeforeFirst()
@@ -90,11 +91,13 @@ public class RecallMe extends Activity {
     			//Toast.makeText(this, "ROWS SCANNED:" + MAX_ROW[0]+"Row: "+rowCount, Toast.LENGTH_LONG).show();
         		
     			if ((rowCount <= MAX_ROW[0])&&(rowCount!=0)) {
+    				foundmessage = true;
     				float fract = (float)rowCount/MAX_ROW[0];
     				yPos = SCREEN_HEIGHT-(int)Math.round((fract)*SCREEN_HEIGHT);
     				//Toast.makeText(this, "Y Pos:" + yPos+" rowCount/MAX_ROW: "+fract, Toast.LENGTH_LONG).show();
     				addButton(xPos, yPos, rowID, rowCount, title, photoID, knitID, audioID, videoID);
-    			}
+    			} 
+    			
     			
     		} catch (NumberFormatException nfe) {
     			Toast.makeText(this, "RECALL:\nERROR:\nNFE\n" + nfe, Toast.LENGTH_LONG).show();
@@ -107,6 +110,9 @@ public class RecallMe extends Activity {
     		}
     		notes.moveToNext();
     	}
+    	if (foundmessage==false){
+			Toast.makeText(this, "Spyn didn't find any messages. \nPlease try again.", Toast.LENGTH_LONG).show();
+		}
     }
     
     public void callNoteEdit(int rowID) {

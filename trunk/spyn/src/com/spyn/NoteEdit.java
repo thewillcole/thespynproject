@@ -57,7 +57,7 @@ public class NoteEdit extends Activity {
     	} else {
         	Toast.makeText(NoteEdit.this, "ERROR: BAD ACTION FOR NoteEdit", Toast.LENGTH_SHORT).show();
         }        
-        Toast.makeText(NoteEdit.this, "Action: " + mAction, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(NoteEdit.this, "Action: " + mAction, Toast.LENGTH_SHORT).show();
        
         mTimeText = (TextView) findViewById(R.id.NOTE_time);
         mVideoText = (TextView) findViewById(R.id.NOTE_video);
@@ -112,7 +112,7 @@ public class NoteEdit extends Activity {
         		saveState();
         		TextView tempAudioButtonText = (TextView) findViewById(R.id.NOTE_audioCaptureButton);
         		
-        		if (tempAudioButtonText.getText().toString().equals("record")) {
+        		if ((tempAudioButtonText.getText().toString().equals("record"))||(tempAudioButtonText.getText().toString().equals("re-record"))) {
         			tempAudioButtonText.setText("stop");        			
         			//String path = RecordMe.getAudioPathFromId(mRowId, mAudioText.getText().toString());
             		Toast.makeText(NoteEdit.this, "start"/*: " + path*/, Toast.LENGTH_SHORT).show();
@@ -121,7 +121,7 @@ public class NoteEdit extends Activity {
             		
         		} else {
         			
-        			tempAudioButtonText.setText("record");
+        			tempAudioButtonText.setText("re-record");
         			Toast.makeText(NoteEdit.this, "stop", Toast.LENGTH_SHORT).show();
             		RecordMe.stopRecord();
             		TextView tempPlayAudioButtonText = (TextView) findViewById(R.id.NOTE_audioPreviewButton);

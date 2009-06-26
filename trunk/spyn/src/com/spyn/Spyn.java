@@ -137,9 +137,9 @@ public class Spyn extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         //menu.add(0, INSERT_ID, 0, R.string.menu_insert);
-        menu.add(0, MENU_ADD, 0,"Add New");
-        menu.add(0, MENU_SCAN, 0, "SCAN New");
-        menu.add(0, MENU_EDIT, 0, "Edit Memories");
+        //menu.add(0, MENU_ADD, 0,"Add New");
+        menu.add(0, MENU_SCAN, 0, R.string.menu_insert_new);
+        menu.add(0, MENU_EDIT, 0, R.string.menu_insert_edit);
         return true;
     }
 
@@ -147,12 +147,12 @@ public class Spyn extends ListActivity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
     	Intent i = new Intent();
     	switch(item.getItemId()) {
-        case MENU_ADD:
+        /*case MENU_ADD:
         	//
             i.setClassName("com.spyn", "com.spyn.NoteEdit");
             i.setAction(NotesDbAdapter.ACTION_CREATE);
             startActivityForResult(i, ACTIVITY_CREATE);
-        	return true;
+        	return true;*/
         case MENU_SCAN:
         	//
         	callPhotographMe(Spyn.ACTIVITY_CREATE_PHOTO);

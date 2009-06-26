@@ -100,7 +100,7 @@ public class ScanMe extends Activity {
 		ImageView image = new ImageView(this); // display Object build into Android
 		setContentView(image); // displays ImageView on screen
 		int[] res = processImg(bitmap);
-		Toast.makeText(ScanMe.this, "Attachting a message to row "+res[0] + "...", Toast.LENGTH_LONG).show();
+		Toast.makeText(ScanMe.this, "Attaching a message to row "+res[0] + ".", Toast.LENGTH_LONG).show();
 		//Toast.makeText(ScanMe.this, "ANSWER: "+res[0]+" Mode: "+res[1]+" Med: "+res[2]+" Avg: "+res[3], Toast.LENGTH_LONG).show();
 		return res;
 	}
