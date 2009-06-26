@@ -64,7 +64,7 @@ public class RecallMe extends Activity {
     	while (!notes.isAfterLast()) {
     		try {
     			
-    			int yPos;// = (int) (SCREEN_HEIGHT*Math.random()) + 10;
+    			int yPos;
     			int xPos = (int) (SCREEN_WIDTH*Math.random()) + 10;
     			int rowID = Integer.parseInt(
     					notes.getString(
@@ -87,8 +87,12 @@ public class RecallMe extends Activity {
     					notes.getString(
     							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_VIDEO)));
     			
-    			if (rowCount <= MAX_ROW[0]) {
-    				yPos = (rowCount/MAX_ROW[0])*SCREEN_HEIGHT;
+    			Toast.makeText(this, "ROWS SCANNED:" + MAX_ROW[0]+"Row: "+rowCount, Toast.LENGTH_LONG).show();
+        		
+    			if ((rowCount <= MAX_ROW[0])&&(rowCount!=0)) {
+    				float fract = (float)rowCount/MAX_ROW[0];
+    				yPos = SCREEN_HEIGHT-(int)Math.round((fract)*SCREEN_HEIGHT);
+    				Toast.makeText(this, "Y Pos:" + yPos+" rowCount/MAX_ROW: "+fract, Toast.LENGTH_LONG).show();
     				addButton(xPos, yPos, rowID, rowCount, title, photoID, knitID, audioID, videoID);
     			}
     			
@@ -117,7 +121,7 @@ public class RecallMe extends Activity {
     		final int photoID, final int knitID, final int audioID, final int videoID) {
         final ImageView imgb = new ImageView(this);
         imgb.setImageResource(R.drawable.pin_v1);
-        imgb.setId(rowID);// was 5
+        imgb.setId(rowID);
         imgb.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	ImageView myImageView = imgb;
@@ -129,7 +133,7 @@ public class RecallMe extends Activity {
             	boolean hasBeenClicked = false;
             	
             	callNoteEdit(myRowID);
-            	Toast.makeText(RecallMe.this, myTitle + "\n" + myRowID, Toast.LENGTH_SHORT).show();
+            	Toast.makeText(RecallMe.this, myTitle + "\n" + rowCount, Toast.LENGTH_SHORT).show();
             	
 //            	if (hasBeenClicked) {
 //            	callNoteEdit(myRowID);

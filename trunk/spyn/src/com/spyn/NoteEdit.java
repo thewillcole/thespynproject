@@ -213,6 +213,13 @@ public class NoteEdit extends Activity {
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LAT)));
     		mLongitudeText.setText(note.getString(
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON)));
+    		
+    		//--------------------------
+    		// Show playback buttons
+    		//--------------------------
+    		final String path = new String("C:\\Images\\DSC00822.jpg");
+            ImageButton imgButton = new ImageButton(this);
+    		
     		//--------------------------
     		// Show playback buttons
     		//--------------------------
@@ -286,6 +293,7 @@ public class NoteEdit extends Activity {
         	time = myDate.toGMTString();
         	location = "";
         	int rowcount = Spyn.SPYN_ROWCOUNT;
+        	Toast.makeText(this, "ROW COUNT" + rowcount, Toast.LENGTH_LONG).show();
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
     				photo, knit, location, latitude, longitude, rowcount);
     		if (id > 0) {
