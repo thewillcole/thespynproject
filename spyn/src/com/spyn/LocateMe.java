@@ -3,7 +3,6 @@ package com.spyn;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -12,13 +11,11 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ZoomControls;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
@@ -42,29 +39,9 @@ public class LocateMe extends MapActivity implements LocationListener {
 	String returnName;
 	double returnLat;
 	double returnLon;
-	//int changeNum = 0; // used to track location changes.
 	
-//	public void prepareReturn() {
-//		Intent i = new Intent();//getIntent();
-//		if (myLocation != null) {
-//			Toast.makeText(LocateMe.this, "LOCATEME: stored real values for return", Toast.LENGTH_SHORT).show();
-//			i.putExtra(NotesDbAdapter.KEY_LOCATION, "New York, NY");
-//			i.putExtra(NotesDbAdapter.KEY_LOCATION_LAT, myLocation.getLatitude());
-//			i.putExtra(NotesDbAdapter.KEY_LOCATION_LON, myLocation.getLongitude());
-//		} else {
-//			Toast.makeText(LocateMe.this, "LOCATEME: stored fake values for return", Toast.LENGTH_SHORT).show();
-//			i.putExtra(NotesDbAdapter.KEY_LOCATION, "Austin, TX");
-//			i.putExtra(NotesDbAdapter.KEY_LOCATION_LAT, 3.141);
-//			i.putExtra(NotesDbAdapter.KEY_LOCATION_LON, 1.680);
-//		}
-//		setResult(RESULT_OK, i); //change to be conditioned upon finding a location
-//	}
 	
-	/***********************************************/
-	/*********** Map Activity Methods **************/
-	/***********************************************/
-	/** Called when activity is not visible **/
-	@Override
+	@Override /** Called when activity is not visible **/
 	public void onStop() {
 		super.onStop();
 		locationManager.removeUpdates(this); // detach location updates
@@ -75,13 +52,10 @@ public class LocateMe extends MapActivity implements LocationListener {
 		// Nullify instance vars to force the re-started app to re-create them
 		locationManager = null; itemizedOverlay = null; drawable = null; mapOverlays = null;
 		mZoom = null; mapView = null; linearLayout = null;
-		
-		//return handle - returns intent with location extras to NoteEdit caller
-		//prepareReturn();
 	}
 	
 	public void prepareReturnResult() {
-		Intent i = new Intent();//getIntent();
+		Intent i = new Intent();
 		if (returnName != null) {
 			//Toast.makeText(LocateMe.this, "LOCATEME: stored real values for return", Toast.LENGTH_SHORT).show();
 			i.putExtra(NotesDbAdapter.KEY_LOCATION, returnName);
@@ -89,9 +63,9 @@ public class LocateMe extends MapActivity implements LocationListener {
 			i.putExtra(NotesDbAdapter.KEY_LOCATION_LON, returnLon);
 		} else {
 			//Toast.makeText(LocateMe.this, "LOCATEME: stored fake values for return", Toast.LENGTH_SHORT).show();
-			i.putExtra(NotesDbAdapter.KEY_LOCATION, "Austin, TX");
-			i.putExtra(NotesDbAdapter.KEY_LOCATION_LAT, 31);
-			i.putExtra(NotesDbAdapter.KEY_LOCATION_LON, 16);
+			i.putExtra(NotesDbAdapter.KEY_LOCATION, "");
+			i.putExtra(NotesDbAdapter.KEY_LOCATION_LAT, 0);
+			i.putExtra(NotesDbAdapter.KEY_LOCATION_LON, 0);
 		}
 		setResult(RESULT_OK, i); //change to be conditioned upon finding a location
 	}
@@ -101,15 +75,11 @@ public class LocateMe extends MapActivity implements LocationListener {
 			prepareReturnResult();
 			return super.onKeyDown(keyCode, event);
 		}
-		//if (keyCode == KeyEvent.KEYCODE_SPACE) {
-			//mCamera.takePicture(null, mPictureCallback, mPictureCallback);
-			//return true;
-		//}
 		return false;
 	}
 	
-    /** Called when the activity is first created. */
-    @Override
+   
+    @Override  /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.locateme_main);
@@ -143,15 +113,8 @@ public class LocateMe extends MapActivity implements LocationListener {
         locationManager.requestLocationUpdates("network", 1000L, 0, this); // attach listener
     }
     
-    @Override
-    protected boolean isRouteDisplayed() {
-        return false;
-    }
     
     
-    /********************************/
-    /** Location Listener Methods ***/
-    /********************************/
     // Any location change in location will call this method
     public void	onLocationChanged(Location location) {
     	int myLocationLat = (int) (location.getLatitude()*1E6);
@@ -185,6 +148,8 @@ public class LocateMe extends MapActivity implements LocationListener {
     	}
     	onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.KEYCODE_BACK, KeyEvent.ACTION_DOWN));
     }
+    
+    
     public void	onProviderDisabled(String provider) {
     	// overwritten to implement LocationListener interface.
     }
@@ -195,6 +160,10 @@ public class LocateMe extends MapActivity implements LocationListener {
     	// overwritten to implement LocationListener interface.
     }
     
-    //////////////////// INTENT CALLING //////////////////
+    @Override
+    protected boolean isRouteDisplayed() {
+        return false;
+    }
+    
    
 }
