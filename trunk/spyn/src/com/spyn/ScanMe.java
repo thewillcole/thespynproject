@@ -250,12 +250,12 @@ public class ScanMe extends Activity {
 		}
 		
 		int answer = 0;
-		if ((med <= 5)&&(mode != -1)) {
-			answer = (avg+mode)/2;
+		if ((mode <= 5)&&(mode != -1)) {
+			answer = (int)(avg+mode)/2;
 		} else if ((med < 15)&&(mode != -1)) {
-			answer = (mode+med)/2;
+			answer = (int)(mode+med)/2;
 		} else if (((mode*2)<med)&&(mode != -1)) {
-			answer = (mode+med)/2;
+			answer = (int)(mode+med)/2;
 		} else {
 			answer = med;
 		}
