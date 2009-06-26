@@ -100,7 +100,7 @@ public class ScanMe extends Activity {
 		ImageView image = new ImageView(this); // display Object build into Android
 		setContentView(image); // displays ImageView on screen
 		int[] res = processImg(bitmap);
-		Toast.makeText(ScanMe.this, "**ANSWER**: "+res[0]+" mode: "+res[1]+" med: "+res[2]+" avg: "+res[3], Toast.LENGTH_LONG).show();
+		Toast.makeText(ScanMe.this, "ANSWER: "+res[0]+" Mode: "+res[1]+" Med: "+res[2]+" Avg: "+res[3], Toast.LENGTH_LONG).show();
 		return res;
 	}
 
@@ -120,7 +120,10 @@ public class ScanMe extends Activity {
 	      int H = MAXROWS;
 	      int W = MAXCOLS;
 	      
-	      //int[][] matrix = new int[MAXROWS][MAXCOLS];
+	      /** 
+           *  Create a grayscale array
+           *  Gray  = Green * 0.59 + Blue * 0.30 + Red * 0.11;
+           */
 	      System.out.println("MAXROWS " + MAXROWS);
 	      System.out.println("MAXCOLS " + MAXCOLS);
 	      int count = 0;
@@ -132,13 +135,10 @@ public class ScanMe extends Activity {
 		  double grayPixel;
 			for (int row=0; row<MAXROWS; row++) {
 	            for (int col=0; col<MAXCOLS; col++) {
-	              /** 
-	               *  Create a grayscale array
-	               *  Gray  = Green * 0.59 + Blue * 0.30 + Red * 0.11;
-	               */
-	            	mygreen = (mybit.getPixel(row,col) >> 16) & 0xFF; //testImage[row][col][GREEN];
-	            	myblue = (mybit.getPixel(row,col) >> 8) & 0xFF; //testImage[row][col][BLUE];
-	            	myred = mybit.getPixel(row,col) & 0xFF; //testImage[row][col][RED];
+	              
+	            	mygreen = (mybit.getPixel(row,col) >> 16) & 0xFF; 
+	            	myblue = (mybit.getPixel(row,col) >> 8) & 0xFF; 
+	            	myred = mybit.getPixel(row,col) & 0xFF; 
 	            	                              
 	                grayPixel = (mygreen*0.59)+(myblue*0.30)+(myred*0.11);
 	                matrix[mi] = grayPixel;
@@ -178,35 +178,7 @@ public class ScanMe extends Activity {
 					binaryM[l] = 0;
 				}
 			}
-			/*
-			for (int j=0; j<matrix.length; j++) {
-			 
-	            	if ((matrix[j] > T1)||(binaryM[j]==1)||(binaryM[j]==2)) {
-	            	    // above first threshold or second threshold:
-	            		// 1) mark row
-	            		if ((matrix[j] > T1)) { //&&(binaryM[j]!=2)) {
-	            			lineC++;
-	            			binaryM[j] = 1;
-	            		} 
-	            		// 2) look at points surrounding it and find out if above second threshold
-	            		int[] surPix = {Math.abs(j-1-W),Math.abs(j-W),Math.abs(j-W+1),Math.abs(j-1),j+1,Math.abs(j+W-1),j+W,j+W+1}; // surrounding pixels
-	            		
-	            		for (int s=0; s<surPix.length; s++) {
-	            			if (surPix[s]<(W*H-1)) {
-	                        	if ((matrix[surPix[s]] > T2)&&(binaryM[surPix[s]]!=1)) {
-	            					// include as an edge
-	            					binaryM[surPix[s]] = 1;
-	            				} else if ((binaryM[surPix[s]]!=1)||(binaryM[surPix[s]]!=2)){
-	            					binaryM[s] = 0;
-	            				}
-	            			}
-	            		}
-	            	} else {
-	            		binaryM[j] = 0;
-	            	}
-			}
-			
-					
+
 			/**
 			 * 
 			 * More image processing:
@@ -276,7 +248,6 @@ public class ScanMe extends Activity {
 		} else {
 			avgRow = new Float (avg);
 		}
-		//Toast.makeText(ScanMe.this, "**ANSWER** med: "+med+" mode: "+mode+" avg: "+avg, Toast.LENGTH_LONG).show();
 		
 		int answer = 0;
 		if ((med <= 5)&&(mode != -1)) {
