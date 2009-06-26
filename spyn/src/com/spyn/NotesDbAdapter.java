@@ -221,6 +221,9 @@ public class NotesDbAdapter {
         args.put(KEY_LOCATION, location);
         args.put(KEY_LOCATION_LAT, latitude);
         args.put(KEY_LOCATION_LON, longitude);
+        Cursor cursor = fetchNote(rowId);
+        String rowCount = cursor.getString(cursor.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWCOUNT));
+        args.put(KEY_ROWCOUNT, rowCount);
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
