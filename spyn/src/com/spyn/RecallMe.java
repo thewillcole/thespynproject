@@ -92,7 +92,7 @@ public class RecallMe extends Activity {
     			if ((rowCount <= MAX_ROW[0])&&(rowCount!=0)) {
     				float fract = (float)rowCount/MAX_ROW[0];
     				yPos = SCREEN_HEIGHT-(int)Math.round((fract)*SCREEN_HEIGHT);
-    				Toast.makeText(this, "Y Pos:" + yPos+" rowCount/MAX_ROW: "+fract, Toast.LENGTH_LONG).show();
+    				//Toast.makeText(this, "Y Pos:" + yPos+" rowCount/MAX_ROW: "+fract, Toast.LENGTH_LONG).show();
     				addButton(xPos, yPos, rowID, rowCount, title, photoID, knitID, audioID, videoID);
     			}
     			
