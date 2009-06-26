@@ -29,7 +29,7 @@
 		android:layout_height="fill_parent" android:layout_weight="1">
 		<!-- Scan -->
 		<LinearLayout android:layout_width="fill_parent"
-			android:background="@color/gray" android:layout_height="fill_parent" android:layout_weight="1">
+			android:layout_height="fill_parent" android:layout_weight="1">
 			<Button android:id="@+id/button_scan" android:layout_width="fill_parent"
 				android:text="Scan for memories" android:layout_height="fill_parent" android:height="50px"/>
 		</LinearLayout>
