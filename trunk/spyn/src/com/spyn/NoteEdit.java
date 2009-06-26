@@ -396,6 +396,6 @@ public class NoteEdit extends Activity {
     
     public void callLocateMe() {
     	Intent i = new Intent(this, LocateMe.class);
-        startActivityForResult(i, 0);
+        startActivity(i);//startActivityForResult(i, 0);
     }
 }
