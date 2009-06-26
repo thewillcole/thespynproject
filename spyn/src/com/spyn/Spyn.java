@@ -37,6 +37,7 @@ public class Spyn extends ListActivity {
     public static final int ACTIVITY_VIEW=2;
     public static final int ACTIVITY_PHOTO=3;
     public static final int ACTIVITY_VIDEO=4;
+    public static final int ACTIVITY_LOCATEME=5;
     
     //create new memeory
     public static final int ACTIVITY_CREATE_PHOTO= 11;
