@@ -84,8 +84,8 @@ public class NoteEdit extends Activity {
         Button audioCaptureButtonButton = (Button) findViewById(R.id.NOTE_audioCaptureButton);
         //Button stopButton = (Button) findViewById(R.id.NOTE_stopButton);
         Button audioPreviewButtonButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
-        Button locateMeButton = (Button) findViewById(R.id.NOTE_locateMe);
-        Button photoCaptureButtonButton = (Button) findViewById(R.id.NOTE_photoCaptureButton);
+        ImageButton locateMeButton = (ImageButton) findViewById(R.id.NOTE_locateMe);
+        ImageButton photoCaptureButtonButton = (ImageButton) findViewById(R.id.NOTE_photoCaptureButton);
         Button videoCaptureButtonButton = (Button) findViewById(R.id.NOTE_videoCaptureButton);
         // locateMe
         locateMeButton.setOnClickListener(new View.OnClickListener() {

@@ -1,34 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
-
-	<LinearLayout android:orientation="vertical"
-		android:background="@color/color2" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_weight=".2">
+	android:padding="10px" android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:background="@color/green">		
+	<!-- TITLE OF SCREEN -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:background="@color/green">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/mainscreentitle" 
+				android:paddingBottom="5px" android:height="50px" android:textSize="20px" 
+				android:textStyle="bold" android:textColor="@color/gray" android:paddingTop="10px"/>
+			</LinearLayout>
+	<!-- LIST -->
+			<LinearLayout android:orientation="vertical"
+		android:background="@color/green" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:layout_weight=".3">
 		<ListView android:id="@+id/android:list"
+			android:textColor="@color/gray"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		<TextView android:id="@+id/android:empty"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:text="No Notes!" />
-	</LinearLayout>
+			android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/gray" android:text="@string/nomessage"/>
+	
+</LinearLayout>
 
 	<!-- SCAN and MAP -->
 	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent" android:background="#aa0000"
+		android:layout_width="fill_parent" 
 		android:layout_height="fill_parent" android:layout_weight="1">
 		<!-- Scan -->
 		<LinearLayout android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:layout_weight="1">
+			android:background="@color/gray" android:layout_height="fill_parent" android:layout_weight="1">
 			<Button android:id="@+id/button_scan" android:layout_width="fill_parent"
-				android:text="Scan for memories" android:layout_height="fill_parent" />
+				android:text="Scan for memories" android:layout_height="fill_parent" android:height="50px"/>
 		</LinearLayout>
 		<!-- MAP -->
 		<LinearLayout android:layout_width="fill_parent"
-			android:background="#00aa00" android:layout_height="fill_parent"
+			 android:layout_height="fill_parent" android:background="@color/gray"
 			android:layout_weight="1">
 			<Button android:id="@+id/button_map" android:layout_width="fill_parent"
-				android:text="Map of memories" android:layout_height="fill_parent" />
+				android:text="Map of memories" android:layout_height="fill_parent" android:height="50px" android:padding="20px"/>
 		</LinearLayout>
 	</LinearLayout>
 
