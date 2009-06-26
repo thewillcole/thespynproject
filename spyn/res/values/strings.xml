@@ -5,7 +5,10 @@
     <string name="menu_insert">Add Note</string>
     <string name="menu_delete">Delete Note</string>
     <string name="title">Title</string>
-    <string name="body">Body</string>
+    <string name="screentitle">Create Message</string>
+    <string name="mainscreentitle">Spyn</string>
+    <string name="nomessage">No messages recorded.</string>
+    <string name="body">Message</string>
     <string name="confirm">Save Memory</string>
     <string name="edit_note">Edit Note</string>
 <string name="time">Time:\t</string>
@@ -17,4 +20,9 @@
 <color name="color1">#96aa62</color>
 <color name="color2">#3f4776</color>
 <color name="color3">#bea787</color>
+<color name="color4">#3C413F</color>
+<color name="green">#96aa62</color>
+<color name="blue">#3f4776</color>
+<color name="gray">#3C413F</color>
+<color name="white">#FFFFFF</color>
 </resources>
