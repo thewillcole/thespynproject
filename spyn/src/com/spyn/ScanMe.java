@@ -64,7 +64,7 @@ public class ScanMe extends Activity {
 	public void callStoreScan() {
 		Intent intent = getIntent();
 		Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
-		int avgrow = countStitches(bitmap);
+		int avgrow = countStitches(bitmap)[0];
 		
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra(INTENT_AVGROW, avgrow);
@@ -96,13 +96,15 @@ public class ScanMe extends Activity {
 	
 	
 	//---------------------
-	public int countStitches(Bitmap bitmap) {
+	public int[] countStitches(Bitmap bitmap) {
 		ImageView image = new ImageView(this); // display Object build into Android
 		setContentView(image); // displays ImageView on screen
-		return processImg(bitmap);
+		int[] res = processImg(bitmap);
+		Toast.makeText(ScanMe.this, "**ANSWER**: "+res[0]+" mode: "+res[1]+" med: "+res[2]+" avg: "+res[3], Toast.LENGTH_LONG).show();
+		return res;
 	}
 
-	public static int processImg(Bitmap mybit) {
+	public static int[] processImg(Bitmap mybit) {
 		int width = mybit.getWidth();
 		int height = mybit.getHeight();
 		int[] pixels = new int[width*height];
@@ -161,13 +163,22 @@ public class ScanMe extends Activity {
 			System.out.println("Min and Max: "+nmin+" "+nmax);
 			
 			/** 
-			 * Canny edge detect on array
+			 * More processing
 			 */
 			final int T1 = 200; // upper threshold
 			final int T2 = 145; // lower threshold
 			
 			int[] binaryM = new int[W*H]; // binary matrix for edge detection
 			int lineC = 0;
+			
+			for (int l=0; l<matrix.length; l++) {
+				if (matrix[l] > 178) {
+					binaryM[l] = 1;
+				} else {
+					binaryM[l] = 0;
+				}
+			}
+			/*
 			for (int j=0; j<matrix.length; j++) {
 			 
 	            	if ((matrix[j] > T1)||(binaryM[j]==1)||(binaryM[j]==2)) {
@@ -219,7 +230,7 @@ public class ScanMe extends Activity {
 			int mode=-1;
 			int modefreq=-1;
 			
-			for (int k=1; k<binaryM.length; k++) {
+			for (int k=0; k<binaryM.length; k++) {
 				cnt = Math.abs(k%W);
 				if (binaryM[k] == 0) {
 					if (startBool[cnt] != 1) {
@@ -256,17 +267,28 @@ public class ScanMe extends Activity {
 			}
 
 		Float avgRow;
-		if (mode>1) {
+		if (med>1) {
 			// return row count (this takes int ceiling of the float)
 			//Toast.makeText(this, "ROWCOUNTIZZLE: " + avgrow, Toast.LENGTH_LONG * 10).show();
 			avgRow = new Float(mode);
-		} else if (med>1) {
+		} else if (mode>1) {
 			avgRow = new Float (med);
 		} else {
 			avgRow = new Float (avg);
 		}
-
-		return avgRow.intValue() + 1;
+		//Toast.makeText(ScanMe.this, "**ANSWER** med: "+med+" mode: "+mode+" avg: "+avg, Toast.LENGTH_LONG).show();
+		
+		int answer = 0;
+		if ((med < 15)&&(mode != -1)) {
+			answer = mode;
+		} else if (((mode*2)<med)&&(mode != -1)) {
+			answer = (mode+med)/2;
+		} else {
+			answer = med;
+		}
+		int[] res = {answer,mode,med,avg};
+		//return avgRow.intValue() + 1
+		return res;
 		// error: the for-loop was never executed
 		// return -1;
 	}
