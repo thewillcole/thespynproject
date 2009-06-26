@@ -279,8 +279,10 @@ public class ScanMe extends Activity {
 		//Toast.makeText(ScanMe.this, "**ANSWER** med: "+med+" mode: "+mode+" avg: "+avg, Toast.LENGTH_LONG).show();
 		
 		int answer = 0;
-		if ((med < 15)&&(mode != -1)) {
-			answer = mode;
+		if ((med <= 5)&&(mode != -1)) {
+			answer = (avg+mode)/2;
+		} else if ((med < 15)&&(mode != -1)) {
+			answer = (mode+med)/2;
 		} else if (((mode*2)<med)&&(mode != -1)) {
 			answer = (mode+med)/2;
 		} else {
