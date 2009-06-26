@@ -142,12 +142,6 @@ public class NoteEdit extends Activity {
         	public void onClick(View view) {
         		
         		callPhoto();
-
-        		//ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
-        		//Uri uri = Uri.fromFile(new File(RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString())));
-        		//photoImageButton.setImageURI(uri);
-        		//photoImageButton.setImageResource(R.drawable.button_globe);
-        		//photoImageButton.setVisibility(View.VISIBLE);
         		
         	}});
         // preview PHOTO
@@ -155,11 +149,20 @@ public class NoteEdit extends Activity {
         photoPreviewButtonButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         		if (!mPhotoText.getText().toString().equals("0")) {
-        			Toast.makeText(NoteEdit.this, "SHOW", Toast.LENGTH_SHORT).show();
-        			String path = RecordMe.getPhotoPathFromId(mRowId,mAudioText.getText().toString());
-        			Bitmap bitmap = BitmapFactory.decodeFile(path);
-        			ImageView iv = new ImageView(NoteEdit.this); iv.setImageBitmap(bitmap);
+        			try {
+        			//Toast.makeText(NoteEdit.this, "SHOW", Toast.LENGTH_SHORT).show();
+        			String path = RecordMe.getPhotoPathFromId(mRowId,mPhotoText.getText().toString());
+        			Bitmap bitmap = BitmapFactory.decodeFile(path);//BitmapFactory.decodeStream(openFileInput(path));//decodeFile(path);
+        			if (bitmap == null) {
+        				Toast.makeText(NoteEdit.this, "GET BITMAP EXCEPTION:\nNull bitmap", Toast.LENGTH_SHORT).show();
+        			}
+        			ImageView iv = new ImageView(NoteEdit.this); 
+        			iv.setImageBitmap(bitmap);
+        			//iv.setImageURI(Uri.(path));
         			setContentView(iv);
+        			} catch (Exception e) {
+        				Toast.makeText(NoteEdit.this, "GET BITMAP EXCEPTION:\n" + e, Toast.LENGTH_SHORT).show();
+        			}
         		}
         		
         	}});
@@ -218,15 +221,16 @@ public class NoteEdit extends Activity {
     		// Show playback buttons
     		//--------------------------
     		if (!mPhotoText.getText().toString().equals("0")) {
-    			String path = RecordMe.getPhotoPathFromId(mRowId,mAudioText.getText().toString());
-    			Bitmap bitmap = BitmapFactory.decodeFile(path);
+    			String path = RecordMe.getPhotoPathFromId(mRowId,mPhotoText.getText().toString());
+    			Bitmap bitmap = BitmapFactory.decodeFile(path);//BitmapFactory.decodeStream(openFileInput(path));//decodeFile(path);
+    			if (bitmap == null) {
+    				Toast.makeText(NoteEdit.this, "GET BITMAP EXCEPTION:\nNull bitmap", Toast.LENGTH_SHORT).show();
+    			}
     			ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
     			if (photoImageButton.getVisibility()!=View.VISIBLE) {
     				photoImageButton.setImageBitmap(bitmap);
     				photoImageButton.setVisibility(View.VISIBLE);
     			}
-    			//ImageView iv = new ImageView(this); iv.setImageBitmap(bitmap);
-    			//setContentView(iv);
     		}
     		if (!mAudioText.getText().toString().equals("0")) { // show preview button: 
     			Button audioPreviewButtonButton = (Button) findViewById(R.id.NOTE_audioPreviewButton);
