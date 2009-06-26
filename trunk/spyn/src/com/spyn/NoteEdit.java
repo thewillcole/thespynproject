@@ -283,15 +283,15 @@ public class NoteEdit extends Activity {
     	int photo = Integer.parseInt(mPhotoText.getText().toString());
     	int knit = Integer.parseInt(mKnitText.getText().toString());
     	String location;// = mLocationText.getText().toString();
-    	double latitude = Double.parseDouble(mLatitudeText.getText().toString());
-    	double longitude = Double.parseDouble(mLongitudeText.getText().toString());
-    		
+    	double latitude= Double.parseDouble(mLatitudeText.getText().toString());
+    	double longitude= Double.parseDouble(mLongitudeText.getText().toString());
+
     	if (mRowId == null) { // create 
-        	Date myDate = new Date(System.currentTimeMillis());
-        	time = myDate.toGMTString();
-        	location = "";
-        	int rowcount = Spyn.SPYN_ROWCOUNT;
-        	Toast.makeText(this, "ROW COUNT" + rowcount, Toast.LENGTH_LONG).show();
+    		Date myDate = new Date(System.currentTimeMillis());
+    		time = myDate.toGMTString();
+    		location = "";
+    		int rowcount = Spyn.SPYN_ROWCOUNT;
+    		Toast.makeText(this, "ROW COUNT" + rowcount, Toast.LENGTH_LONG).show();
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
     				photo, knit, location, latitude, longitude, rowcount);
     		if (id > 0) {
@@ -303,6 +303,7 @@ public class NoteEdit extends Activity {
     		location = mLocationText.getText().toString();
     		mDbHelper.updateNote(mRowId, title, time, body, video, audio, 
     				photo, knit, location, latitude, longitude);
+
     	}
 
     }    
@@ -331,19 +332,21 @@ public class NoteEdit extends Activity {
         		}
 
         		
-        	} else if (requestCode != Spyn.ACTIVITY_PHOTO) {
-        		//Toast.makeText(this, "NOTEEDIT: resultCode \"ok\"", Toast.LENGTH_SHORT).show();	
+        	} else if (requestCode == Spyn.ACTIVITY_LOCATEME) {
+        		
         		if (returnIntent!=null) {
-        			//Toast.makeText(this, "NOTEEDIT: Obtained result from LOCATEME", Toast.LENGTH_SHORT).show();
+        			//saveState();
         			returnIntent.hasExtra(NotesDbAdapter.KEY_LOCATION_LAT);
         			String myTempLoc = returnIntent.getStringExtra(NotesDbAdapter.KEY_LOCATION);
         			double myTempLat = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LAT, 0.0);
         			double myTempLon = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LON, 0.0);
-        			//Toast.makeText(this, "City: " + myTempLoc + ", pi: " + myTempLat + ", phi: " + myTempLon, Toast.LENGTH_SHORT).show();
-        			mLocationText.setText(myTempLoc);
+        			
+        			mLocationText.setText(myTempLoc.toString());
         			mLatitudeText.setText(Double.toString(myTempLat));
         			mLongitudeText.setText(Double.toString(myTempLon));
-        			saveState();
+        			
+        			Toast.makeText(this, "LOCATION " + myTempLoc + ", " + myTempLat + ", " + myTempLon, Toast.LENGTH_SHORT).show();	
+        			//saveState(); // THIS IS THE GOAL
         		} else {
         			Toast.makeText(this, "ERROR:\nNOTEEDIT: LOCATEME returned no intent", Toast.LENGTH_SHORT).show();
         		}
@@ -396,6 +399,6 @@ public class NoteEdit extends Activity {
     
     public void callLocateMe() {
     	Intent i = new Intent(this, LocateMe.class);
-        startActivity(i);//startActivityForResult(i, 0);
+        startActivityForResult(i, Spyn.ACTIVITY_LOCATEME);
     }
 }
