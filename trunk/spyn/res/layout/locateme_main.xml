@@ -8,7 +8,10 @@
 	<com.google.android.maps.MapView android:id="@+id/mapview"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:clickable="true"
-		android:apiKey="0Ii-YvL3tdIqh_Z1g6HUApHLZbW1y54R3c8nm6A" />
+		android:apiKey="0Ii-YvL3tdIqIZOC6rPjiHDTyLtS6rZ5_R7_wXA"
+	/> 
+		 
+	<!--android:apiKey="0Ii-YvL3tdIqh_Z1g6HUApHLZbW1y54R3c8nm6A"-->
 
 	<LinearLayout android:id="@+id/zoomview"
 		android:layout_width="wrap_content"

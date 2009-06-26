@@ -1,21 +1,15 @@
 package com.spyn;
 
 import java.util.List;
-
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ZoomControls;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
@@ -89,7 +83,7 @@ public class LocateWe extends MapActivity {
     	GeoPoint[] geopoints = new GeoPoint[notes.getCount()];
     	OverlayItem myLocationOverlay;
     	notes.moveToNext();
-    	for (int i = 0; i < notes.getCount(); i++) {
+    	for (int i = 0; !notes.isAfterLast(); i++) {
     		try {	
     			rowIDs[i] = Integer.parseInt(
     					notes.getString(
