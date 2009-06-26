@@ -52,7 +52,7 @@ public class NoteEdit extends Activity {
         } else if (mAction.equals(NotesDbAdapter.ACTION_EDIT)) {
         	setContentView(R.layout.note_edit);
         } else if (mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
-        	setContentView(R.layout.note_edit);
+        	setContentView(R.layout.note_view);
     	} else {
         	Toast.makeText(NoteEdit.this, "ERROR: BAD ACTION FOR NoteEdit", Toast.LENGTH_SHORT).show();
         }        
