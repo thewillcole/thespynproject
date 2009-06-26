@@ -36,7 +36,7 @@ public abstract class NoteManager extends Activity {
      	// actions: ACTIVITY_CREATE=0; ACTIVITY_EDIT=1;
         mAction = getIntent().getAction();
     
-        Toast.makeText(NoteManager.this, "NoteManager: Action: " + mAction, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(NoteManager.this, "NoteManager: Action: " + mAction, Toast.LENGTH_SHORT).show();
         
         mRowId = savedInstanceState != null ? savedInstanceState.getLong(NotesDbAdapter.KEY_ROWID) 
                 							: null;

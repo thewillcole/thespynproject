@@ -2,8 +2,9 @@
 <resources>
     <string name="app_name">Spyn</string>
     <string name="no_notes">No Notes Yet</string>
-    <string name="menu_insert">Add Note</string>
-    <string name="menu_delete">Delete Note</string>
+    <string name="menu_insert_new">Create New Memory</string>
+    <string name="menu_insert_edit">Edit Memories</string>
+    <string name="menu_delete">Delete Memory</string>
     <string name="title">Title</string>
     <string name="title_edit">Create Message</string>
     <string name="title_view">Your Message</string>
@@ -11,7 +12,10 @@
     <string name="nomessage">No messages recorded.</string>
     <string name="body">Message</string>
     <string name="confirm">Save Memory</string>
-    <string name="edit_note">Edit Note</string>
+    <string name="edit_note">Edit Memory</string>
+    <string name="record_audio">Record</string>
+    <string name="play_audio">Play Audio</string>
+    <string name="stop">Stop</string>
 <string name="time">Time:\t</string>
 <string name="recording">Recording</string>
 <string name="video">Audio/Video</string>
@@ -22,10 +26,11 @@
 <color name="color2">#3f4776</color>
 <color name="color3">#bea787</color>
 <color name="color4">#3C413F</color>
-<color name="green">#96aa62</color>
-<color name="blue">#3f4776</color>
+<color name="green">#B1C969</color>
+<color name="blue">#57618C</color>
 <color name="gray">#3C413F</color>
 <color name="white">#FFFFFF</color>
 <color name="aqua">#326B66</color>
 <color name="orange">#842720</color>
+<color name="med_orange">#C16544</color>
 </resources>
