@@ -3,6 +3,7 @@ package com.spyn;
 import java.util.ArrayList;
 
 import android.graphics.drawable.Drawable;
+import android.widget.Toast;
 
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
@@ -37,6 +38,13 @@ public class LocateMeItemizedOverlay extends ItemizedOverlay {
 	public void clear() {
 		mOverlays.clear();
 		populate();
+	}
+	
+	@Override
+	protected boolean onTap(int i) {
+		//Toast.makeText(LocateMeItemizedOverlay.class.getSuperclass(),"Message",Toast.LENGTH_SHORT).show();
+		
+		return(true);
 	}
 
 }

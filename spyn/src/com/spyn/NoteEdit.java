@@ -6,17 +6,29 @@
 package com.spyn;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,17 +44,28 @@ public class NoteEdit extends Activity {
     private TextView mAudioText;
     private TextView mPhotoText;
     private TextView mKnitText;
+	private TextView mLocationTitleText;
     private TextView mLatitudeText;
     private TextView mLongitudeText;
+	private TextView mLocationText;
+    //private TextView mRowText;
     private Long mRowId;
     private NotesDbAdapter mDbHelper;
     private String mAction;
 	private TextView mTimeText;
-	private TextView mLocationText;
-
+	
+	public static double CURRENT_LAT=0;
+	public static double CURRENT_LON=0;
+	public static String CURRENT_TITLE="";
+	public static String CURRENT_BODY="";
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        		WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         mDbHelper = new NotesDbAdapter(this);
         mDbHelper.open();
         mAction = getIntent().getAction();
@@ -50,6 +73,22 @@ public class NoteEdit extends Activity {
         	Toast.makeText(NoteEdit.this, "ERROR: NO ACTION FOR NoteEdit", Toast.LENGTH_SHORT).show();
         } else if (mAction.equals(NotesDbAdapter.ACTION_CREATE)) {
         	setContentView(R.layout.note_edit);
+        	
+    		callLocateMe();
+    		/*
+        	// Added code to get location on create
+        	//mLocationText.setText("Loading...");
+    	    WhereamiLocationListener listener = new WhereamiLocationListener();
+    	    LocationManager manager = (LocationManager)
+    	    	getSystemService(NoteEdit.this.LOCATION_SERVICE);
+    	    long updateTimeMsec = 1000L;
+    	    manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+    	updateTimeMsec, 500.0f,
+    	        listener);
+    	    manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+    	updateTimeMsec, 500.0f,
+    	        listener);
+    	    */
         } else if (mAction.equals(NotesDbAdapter.ACTION_EDIT)) {
         	setContentView(R.layout.note_edit);
         } else if (mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
@@ -66,7 +105,9 @@ public class NoteEdit extends Activity {
         mKnitText = (TextView) findViewById(R.id.NOTE_knit);
         mLatitudeText = (TextView) findViewById(R.id.NOTE_latitude);
         mLongitudeText = (TextView) findViewById(R.id.NOTE_longitude);
+        mLocationTitleText = (TextView) findViewById(R.id.NOTE_location_title);
         mLocationText = (TextView) findViewById(R.id.NOTE_location);
+        //mRowText = (TextView) findViewById(R.id.NOTE_row);
         if (!mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
         	mTitleText = (EditText) findViewById(R.id.NOTE_title);
         	mBodyText = (EditText) findViewById(R.id.NOTE_body);
@@ -99,7 +140,7 @@ public class NoteEdit extends Activity {
         	public void onClick(View view) {
         		saveState();
         		//Toast.makeText(NoteEdit.this, "LocateMe", Toast.LENGTH_SHORT).show();
-        		callLocateMe();
+        		callLocateMeOnMap();
         		saveState(); }});
         // save
         confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -171,7 +212,15 @@ public class NoteEdit extends Activity {
         	public void onClick(View view) {
         		callVideo();
         	}});
+		
         
+        // find LOCATION
+        //if (mLocationText.getText().toString().equals("")) {
+        	//callLocateMe();
+        	/*saveState();
+			Toast.makeText(NoteEdit.this, "LocateMe CALLED in OnCreate", Toast.LENGTH_SHORT).show();
+			saveState();*/
+        //}        
         //------------------
         // POPULATE AND SAVE
         //------------------
@@ -193,8 +242,10 @@ public class NoteEdit extends Activity {
     }
     
     private void populateFields() {
+    	
     	if (mRowId != null) {    		
     		Cursor note = mDbHelper.fetchNote(mRowId);
+    		//Toast.makeText(NoteEdit.this, mRowId+" Populating fields: "+note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION), Toast.LENGTH_SHORT).show();
     		startManagingCursor(note);
     		mTitleText.setText(note.getString(
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_TITLE)));
@@ -216,6 +267,8 @@ public class NoteEdit extends Activity {
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LAT)));
     		mLongitudeText.setText(note.getString(
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON)));
+    		//mRowText.setText(note.getString(
+    		//		note.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWCOUNT)));
     		
     		//--------------------------
     		// Show playback buttons
@@ -240,6 +293,13 @@ public class NoteEdit extends Activity {
     			Button locationLocateMeButton = (Button) findViewById(R.id.NOTE_locateMe);
     			locationLocateMeButton.setVisibility(View.GONE);
     		}
+    	
+    		// Set the current location vars for map
+    		CURRENT_LAT = note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LAT);
+     		CURRENT_LON = note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON);
+     		CURRENT_TITLE = mTitleText.getText().toString();
+     		CURRENT_BODY = mBodyText.getText().toString();
+    		
     		//--------------------------
     	} else {
     		mTitleText.setText("[title]");
@@ -253,6 +313,7 @@ public class NoteEdit extends Activity {
     		mKnitText.setText("0");
     		mLatitudeText.setText("0.0");
     		mLongitudeText.setText("0.0");
+    		//mRowText.setText("0");
         }
     }
     
@@ -282,7 +343,7 @@ public class NoteEdit extends Activity {
     	int audio = Integer.parseInt(mAudioText.getText().toString());
     	int photo = Integer.parseInt(mPhotoText.getText().toString());
     	int knit = Integer.parseInt(mKnitText.getText().toString());
-    	String location;// = mLocationText.getText().toString();
+    	String location = mLocationText.getText().toString();
     	double latitude= Double.parseDouble(mLatitudeText.getText().toString());
     	double longitude= Double.parseDouble(mLongitudeText.getText().toString());
 
@@ -290,14 +351,14 @@ public class NoteEdit extends Activity {
     		Date myDate = new Date(System.currentTimeMillis());
     		time = myDate.toGMTString();
     		location = "";
-    		int rowcount = Spyn.SPYN_ROWCOUNT;
-    		Toast.makeText(this, "ROW COUNT" + rowcount, Toast.LENGTH_LONG).show();
+    		int rowcount = Spyn.TOTAL_ROWCOUNT;
+    		//Toast.makeText(this, "ROW COUNT" + rowcount, Toast.LENGTH_LONG).show();
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
     				photo, knit, location, latitude, longitude, rowcount);
     		if (id > 0) {
     			mRowId = id;
     		}
-    		Toast.makeText(this, "SAVED WITH ROW: " + rowcount, Toast.LENGTH_LONG).show();
+    		//Toast.makeText(this, "SAVED WITH ROW: " + rowcount, Toast.LENGTH_LONG).show();
     	} else { // edit
     		time = mTimeText.getText().toString();
     		location = mLocationText.getText().toString();
@@ -333,23 +394,12 @@ public class NoteEdit extends Activity {
 
         		
         	} else if (requestCode == Spyn.ACTIVITY_LOCATEME) {
-        		
-        		if (returnIntent!=null) {
-        			//saveState();
-        			returnIntent.hasExtra(NotesDbAdapter.KEY_LOCATION_LAT);
-        			String myTempLoc = returnIntent.getStringExtra(NotesDbAdapter.KEY_LOCATION);
-        			double myTempLat = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LAT, 0.0);
-        			double myTempLon = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LON, 0.0);
-        			
-        			mLocationText.setText(myTempLoc.toString());
-        			mLatitudeText.setText(Double.toString(myTempLat));
-        			mLongitudeText.setText(Double.toString(myTempLon));
-        			
-        			Toast.makeText(this, "LOCATION " + myTempLoc + ", " + myTempLat + ", " + myTempLon, Toast.LENGTH_SHORT).show();	
-        			//saveState(); // THIS IS THE GOAL
-        		} else {
+
+            	if (returnIntent!=null) {
+        			locateMeMethod(returnIntent);
+        		} /*else {
         			Toast.makeText(this, "ERROR:\nNOTEEDIT: LOCATEME returned no intent", Toast.LENGTH_SHORT).show();
-        		}
+        		}*/
 
         	} else if (requestCode == Spyn.ACTIVITY_PHOTO) {
         		//Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
@@ -379,7 +429,8 @@ public class NoteEdit extends Activity {
         			photoImageButton.setImageBitmap(x);
         			photoImageButton.setVisibility(View.VISIBLE);
         			
-
+        			// Saved State, now reset row count
+        			Spyn.TOTAL_ROWCOUNT = 0;
 
         		} catch (Exception e) {
         			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
@@ -389,16 +440,114 @@ public class NoteEdit extends Activity {
         		//Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
 
         	}	else {
-        		Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
+        		//Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
         	}
 
         } else if (resultCode == RESULT_CANCELED){
-        	Toast.makeText(this, "ERROR:\nNOTEEDIT: resultCode \"cancelled\"", Toast.LENGTH_SHORT).show();
+        	//Toast.makeText(this, "ERROR:\nNOTEEDIT: resultCode \"cancelled\"", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void callLocateMeOnMap() {
+    	Intent i = new Intent(this, LocateMe.class);
+    	startActivityForResult(i, Spyn.ACTIVITY_LOCATEME);
     }
     
     public void callLocateMe() {
-    	Intent i = new Intent(this, LocateMe.class);
-        startActivityForResult(i, Spyn.ACTIVITY_LOCATEME);
+    	// Added code to get location on create
+    	//mLocationTitleText.setText("Loading...");
+	    WhereamiLocationListener listener = new WhereamiLocationListener();
+	    LocationManager manager = (LocationManager)
+	    	getSystemService(NoteEdit.this.LOCATION_SERVICE);
+	    long updateTimeMsec = 1000L;
+	    manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+	updateTimeMsec, 500.0f,
+	        listener);
+	    manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+	updateTimeMsec, 500.0f,
+	        listener);
+    	
     }
-}
+    
+    public void locateMeMethod(Intent returnIntent) {
+			//saveState();
+			returnIntent.hasExtra(NotesDbAdapter.KEY_LOCATION_LAT);
+			String myTempLoc = returnIntent.getStringExtra(NotesDbAdapter.KEY_LOCATION);
+			double myTempLat = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LAT, 0.0);
+			double myTempLon = returnIntent.getDoubleExtra(NotesDbAdapter.KEY_LOCATION_LON, 0.0);
+			
+			//mLocationText.setText(myTempLoc.toString());
+			mLatitudeText.setText(Double.toString(myTempLat));
+			mLongitudeText.setText(Double.toString(myTempLon));
+			//mLocationTitleText.setText("lat/lon");
+			
+			Toast.makeText(this, "LOCATION " + myTempLoc + ", " + myTempLat + ", " + myTempLon, Toast.LENGTH_SHORT).show();	
+			//saveState(); // THIS IS THE GOAL
+    }
+    
+
+    public class WhereamiLocationListener implements LocationListener {
+
+	    public void onLocationChanged(Location location) {
+	      if (location != null) {
+	        //messageView.setText("LOCATION: "+location.getLatitude()+" "
+	        //		+location.getLongitude());
+	    	//------------------- RETURN RESULT TO CALLER -------------
+	      	
+	    	try { 
+	      		Geocoder geocoder = new Geocoder(NoteEdit.this, Locale.ENGLISH);
+		      	List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 2); //10 results
+		      	//Toast.makeText(NoteEdit.this, "EMPTY? "+addresses.isEmpty(), Toast.LENGTH_SHORT).show();
+		     	if (!(addresses.isEmpty())){
+		     		Toast.makeText(NoteEdit.this, "FOUND LOCATION:  "+((Address) addresses).getLocality(), Toast.LENGTH_SHORT).show();
+			     	Address address = addresses.get(1);
+		     		mLocationText.setText(address.getLocality());
+		     	}
+		     	mLatitudeText.setText(Double.toString(location.getLatitude()));
+	     		mLongitudeText.setText(Double.toString(location.getLongitude()));
+
+	     		// Set the current location vars for map
+	     		CURRENT_LAT = location.getLatitude();
+	     		CURRENT_LON = location.getLongitude();
+	     		CURRENT_TITLE = mTitleText.getText().toString();
+	     		CURRENT_BODY = mBodyText.getText().toString();
+	     	
+	    	} catch (IllegalArgumentException e) {
+	    		Toast.makeText(NoteEdit.this, "ERROR:\nLOCATEME:\nAddress exception: lat or lon", Toast.LENGTH_SHORT).show();
+	     	} catch (IOException eio) {
+	     		Toast.makeText(NoteEdit.this, "ERROR:\nLOCATEME:\nIOException", Toast.LENGTH_SHORT).show();
+	     	}
+	     	
+	    	 //Geocoder geocoder = new Geocoder(NoteEdit.this); 
+	     	 //mLocationText.setText(Double.toString(location.getLatitude())+", "+Double.toString(location.getLongitude()));
+	     	 //mLat = location.getLatitude();
+	     	 //mLon = location.getLongitude();
+	     	 
+	     	 
+		
+	     	 //setLocation(location.getLatitude(),location.getLongitude());
+	    	  
+	      }
+	    }
+
+	    public void onProviderDisabled(String provider) {
+	      // TODO Auto-generated method stub
+
+	    }
+
+	    public void onProviderEnabled(String provider) {
+	      // TODO Auto-generated method stub
+
+	    }
+
+	    public void onStatusChanged(String provider, int status, Bundle extras)
+	{
+	      // TODO Auto-generated method stub
+
+	    }
+
+	  }
+
+   }
+
+
