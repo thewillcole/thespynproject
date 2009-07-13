@@ -24,6 +24,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -45,6 +47,10 @@ public class Notepadv3 extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        		WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         mAction = getIntent().getAction();
         if (mAction.equals(NotesDbAdapter.ACTION_EDIT)) {
         	setContentView(R.layout.notes_list2);
@@ -55,7 +61,7 @@ public class Notepadv3 extends ListActivity {
         mDbHelper.open();
         fillData();
         registerForContextMenu(getListView());
-        Toast.makeText(Notepadv3.this, "np3 action: " + mAction, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(Notepadv3.this, "np3 action: " + mAction, Toast.LENGTH_SHORT).show();
     }
     
     private void fillData() {

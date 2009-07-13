@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:padding="10px" android:background="@color/orange">
+	android:layout_height="fill_parent" android:padding="10px" android:background="@color/gray">
 
 	<LinearLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
@@ -40,7 +40,7 @@
 		</LinearLayout>
 
 		<!-- LOCATION -->
-		<LinearLayout android:orientation="horizontal"
+		<LinearLayout android:orientation="horizontal" android:visibility="gone"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
 			<TextView android:layout_width="wrap_content"
@@ -49,25 +49,49 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" android:layout_weight="1"
 				android:scrollbars="vertical" />
-			<ImageButton android:id="@+id/NOTE_locateMe" android:src="@drawable/ic_locateme2" 
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:visibility="gone"/>
+			
 		</LinearLayout>
 
 		<!-- LOCATION COORDS -->
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:visibility="gone">
+			android:layout_height="wrap_content" >
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:text="Lat/Lon: " android:visibility="gone"/>
-			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Lat/Lon: " />
+			
+			<!--<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:id="@+id/NOTE_latitude" />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:text=", " android:visibility="gone"/>
+				android:layout_height="wrap_content" android:text=", " />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:id="@+id/NOTE_longitude" />
 			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:text="." android:visibility="gone"/>
+				android:layout_height="wrap_content" android:text="." />-->
+			
+			<TextView 
+				android:layout_height="20px" android:id="@+id/NOTE_latitude"
+				android:width="30px" android:maxWidth="30px" android:layout_width="30px" android:gravity="center"/>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text=", "/>
+			<TextView 
+			android:width="30px" android:maxWidth="30px" android:layout_width="30px"
+				android:layout_height="20px" android:id="@+id/NOTE_longitude" android:gravity="center"/>
+			
+			
+		</LinearLayout>
+		<ImageButton android:id="@+id/NOTE_locateMe" android:src="@drawable/ic_locateme2" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:gravity="left"/>
+		
+		<!-- NUMBER OF ROWS -->
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Message recorded at row: " android:visibility="gone"/>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/NOTE_row" />
+		
 		</LinearLayout>
 
 		<!-- Counters -->
@@ -98,7 +122,7 @@
 		<!-- BODY -->
 			
 		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="@string/body" android:paddingTop="2px"/>
+			android:layout_height="wrap_content" android:text="@string/body" android:paddingTop="6px" android:textStyle="bold"/>
 		<TextView android:id="@+id/NOTE_body"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:layout_weight="1"

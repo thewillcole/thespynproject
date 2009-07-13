@@ -20,10 +20,17 @@
 package com.spyn;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +38,9 @@ import android.widget.Toast;
 public class ScanMe extends Activity {
 	
 	public final static String INTENT_BITMAP="bitmap";
+	public final static String INTENT_BITMAP_2="bitmap2";
+	public final static String INTENT_BITMAP_3="bitmap3";
+	
 	public final static String INTENT_AVGROW="avgrow";
 	
 	public final static String ACTION_STORE = "store";
@@ -39,8 +49,11 @@ public class ScanMe extends Activity {
 	
 	public final static String SCAN_ALL_LOCATIONS = "scan_all_locations";
 	public final static String SCAN_LOCATION = "scan_location";
+
+	public final static String DRAW_ON_TOP = "draw_on_top";
 	
 	public String myAction;
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,22 +61,65 @@ public class ScanMe extends Activity {
 		Intent intent = getIntent();
 		myAction = intent.getAction();
 		
-		if (myAction.equals(ScanMe.ACTION_STORE)) {
+		if (myAction.equals(ScanMe.DRAW_ON_TOP)) {
+			DrawOnTopMethod mDraw = new DrawOnTopMethod(this);
+			addContentView(mDraw, new LayoutParams
+			(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		} else if (myAction.equals(ScanMe.ACTION_STORE)) {
 			// scan for a new memory
-			callStoreScan();
+			callStoreMultiScan();
+			
+			// Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
+			// callStoreScan(bitmap);
 		} else if (myAction.equals(ScanMe.ACTION_EXTRACT)) {
-			// scan a completed knit for all memories in it
-			callExtractScan();
+			
+		// scan a completed knit for all memories in it
+			
 		} else {
 			Toast.makeText(ScanMe.this, "SCANME:\nERROR:\nIncorrect Action", Toast.LENGTH_LONG).show();
 		}
 	}
-	
-	
-	// scan for a new memory
-	public void callStoreScan() {
+	/*
+	class DrawOnTop extends View {
+
+    	public DrawOnTop(Context context) {
+    	super(context);
+    	// TODO Auto-generated constructor stub
+    	}
+
+    	@Override
+    	protected void onDraw(Canvas canvas) {
+    	// TODO Auto-generated method stub
+
+    	Paint paint = new Paint();
+    	paint.setStyle(Paint.Style.FILL);
+    	paint.setColor(Color.RED);
+    	paint.setTextAlign(Align.LEFT);
+    	paint.setTextSize(24);
+    	canvas.drawText("Place bottom of knit here.", 20, 440, paint);
+
+    	super.onDraw(canvas);
+    	}
+
+    }*/
+    
+	// multiple scans for a new memory
+	public void callStoreMultiScan() {
 		Intent intent = getIntent();
-		Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
+		Intent returnIntent = new Intent();
+		returnIntent.putExtra(INTENT_AVGROW, Spyn.TOTAL_ROWCOUNT);
+		// Spyn.TOTAL_ROWCOUNT = 0;
+		setResult(RESULT_OK, returnIntent);
+		//this is a good, cheap way to exit the ScanMe activity
+		//it just emulates the user pressing the back button
+		onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.KEYCODE_BACK, KeyEvent.ACTION_DOWN));
+	}
+	
+	/* scan for a new memory
+	public void callStoreScan(Bitmap bitmap) {
+		Intent intent = getIntent();
+		//Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
+		
 		int avgrow = countStitches(bitmap)[0];
 		
 		Intent returnIntent = new Intent();
@@ -73,15 +129,12 @@ public class ScanMe extends Activity {
 		//this is a good, cheap way to exit the ScanMe activity
 		//it just emulates the user pressing the back button
 		onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.KEYCODE_BACK, KeyEvent.ACTION_DOWN));
-	}
+	}*/
 	
-	
+
 	// scan a completed knit for all memories in it
 	public void callExtractScan() {
-		int[] all_locations; // list of X,Y positions of memories
-		
-		// XXX your code here
-		
+		//int[] all_locations; // list of X,Y positions of memories
 		
 		// how to return data to the caller:
 		// put data into the returnIntent using putExtra(stringName, 
@@ -100,8 +153,7 @@ public class ScanMe extends Activity {
 		ImageView image = new ImageView(this); // display Object build into Android
 		setContentView(image); // displays ImageView on screen
 		int[] res = processImg(bitmap);
-		Toast.makeText(ScanMe.this, "Attaching a message to row "+res[0] + ".", Toast.LENGTH_LONG).show();
-		//Toast.makeText(ScanMe.this, "ANSWER: "+res[0]+" Mode: "+res[1]+" Med: "+res[2]+" Avg: "+res[3], Toast.LENGTH_LONG).show();
+		//Toast.makeText(ScanMe.this, "Attaching a message to row "+res[0] + ".", Toast.LENGTH_LONG).show();
 		return res;
 	}
 
@@ -109,7 +161,7 @@ public class ScanMe extends Activity {
 		int width = mybit.getWidth();
 		int height = mybit.getHeight();
 		int[] pixels = new int[width*height];
-		mybit.getPixels(pixels,0,width,0,0,width, height);
+		//mybit.getPixels(pixels,0,width,0,0,width, height);
 		//byte[] picData = mybit.getData();
 
 		if(width==-1 || height==-1){
@@ -158,22 +210,20 @@ public class ScanMe extends Activity {
 				nmin = Math.min(matrix[n1], nmin);
 			}
 			for (int n=1; n<matrix.length; n++) {
-				matrix[n] = matrix[n] -nmin;
+				matrix[n] = matrix[n]-nmin;
 				matrix[n] = matrix[n]*255/(nmax -nmin);
 			}
 			System.out.println("Min and Max: "+nmin+" "+nmax);
 			
 			/** 
-			 * More processing
+			 * Threshold image
 			 */
-			final int T1 = 200; // upper threshold
-			final int T2 = 145; // lower threshold
+			final int THRESH = 178;
 			
 			int[] binaryM = new int[W*H]; // binary matrix for edge detection
-			int lineC = 0;
 			
 			for (int l=0; l<matrix.length; l++) {
-				if (matrix[l] > 178) {
+				if (matrix[l] > THRESH) {
 					binaryM[l] = 1;
 				} else {
 					binaryM[l] = 0;
@@ -193,7 +243,6 @@ public class ScanMe extends Activity {
 			int[] zeroCnt = new int[W];
 			int[] startBool = new int[W];
 			int total = 0;
-			//int stitchCnt = 0;
 			int avg = 0;
 			int med = 0;
 			int max= 0;
@@ -241,8 +290,6 @@ public class ScanMe extends Activity {
 
 		Float avgRow;
 		if (med>1) {
-			// return row count (this takes int ceiling of the float)
-			//Toast.makeText(this, "ROWCOUNTIZZLE: " + avgrow, Toast.LENGTH_LONG * 10).show();
 			avgRow = new Float(mode);
 		} else if (mode>1) {
 			avgRow = new Float (med);
@@ -260,6 +307,10 @@ public class ScanMe extends Activity {
 		} else {
 			answer = med;
 		}
+		
+		// Account for row ratio
+		answer = answer * Spyn.ROW_RATIO;
+		
 		int[] res = {answer,mode,med,avg};
 		//return avgRow.intValue() + 1
 		return res;

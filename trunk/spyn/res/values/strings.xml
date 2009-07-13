@@ -20,6 +20,7 @@
 <string name="recording">Recording</string>
 <string name="video">Audio/Video</string>
 <string name="photo">Photo</string>
+<string name="latlon">Lat/Lon: </string>
 <string name="knit">Knit</string>
 <string name="comma">,\t</string>
 <color name="color1">#96aa62</color>
@@ -32,5 +33,5 @@
 <color name="white">#FFFFFF</color>
 <color name="aqua">#326B66</color>
 <color name="orange">#842720</color>
-<color name="med_orange">#C16544</color>
+<color name="med_orange">#CEB372</color>
 </resources>

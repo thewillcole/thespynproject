@@ -61,6 +61,7 @@ public class LocateWe extends MapActivity {
         ///////// MAP (ZOOM) /////
         linearLayout = (LinearLayout) findViewById(R.id.zoomview);
         mapView = (MapView) findViewById(R.id.mapview);
+        mapView.getController().setZoom(12);
         mZoom = (ZoomControls) mapView.getZoomControls(); //get zoom control from map view
         // ^ this will work out of the box because it is already hooked up to the MapView
         linearLayout.addView(mZoom); // plug ZoomControls into the LinearLayout
@@ -85,18 +86,22 @@ public class LocateWe extends MapActivity {
     	notes.moveToNext();
     	for (int i = 0; !notes.isAfterLast(); i++) {
     		try {	
+    			int templat = (int) (1E6 * Double.parseDouble(
+						notes.getString(
+							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LAT))));
+    			int templon = (int) (1E6 * Double.parseDouble(
+					    notes.getString(
+								notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON))));
     			rowIDs[i] = Integer.parseInt(
     					notes.getString(
     							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWID)));
-        		geopoints[i] = new GeoPoint(
-        				(int) (1E6 * Double.parseDouble(
-        						notes.getString(
-        								notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LAT)))),
-        				(int) (1E6 * Double.parseDouble(
-        					    notes.getString(
-        								notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON)))));
-    			//Toast.makeText(this, "EYE:   " + i + 
-    			//		"\n" + rowIDs[i], Toast.LENGTH_LONG).show();
+        		geopoints[i] = new GeoPoint(templat,templon);
+        		
+        		// Center map around last point
+        		if (notes.isLast()) {
+        			//Toast.makeText(this, "lat/lon: " + templat+" "+templon, Toast.LENGTH_LONG).show();
+            		mapView.getController().setCenter(geopoints[i]);
+        		}
     		} catch (NumberFormatException nfe) {
     			Toast.makeText(this, "LOCATEWE:\nERROR:\nNFE\n" + nfe, Toast.LENGTH_LONG).show();
     		} catch (IllegalArgumentException iae) {
@@ -106,6 +111,7 @@ public class LocateWe extends MapActivity {
     		} catch (Exception e) {
     			Toast.makeText(this, "LOCATEWE:\nERROR:\nE\n" + e, Toast.LENGTH_LONG).show();
     		}
+    		
     		notes.moveToNext();
     		myLocationOverlay = new OverlayItem(geopoints[i], "", "");
     		itemizedOverlay.addOverlay(myLocationOverlay);
@@ -116,6 +122,10 @@ public class LocateWe extends MapActivity {
     	mapOverlays.add(itemizedOverlay);
     }
     
+    private GeoPoint getPoint(double lat, double lon) {
+		return(new GeoPoint((int)(lat*1000000.0),
+													(int)(lon*1000000.0)));
+	}
     
 //    public boolean onTouchEvent(android.view.MotionEvent e, MapView mapView) {
 //    	//super.onTouchEvent(e);

@@ -14,7 +14,7 @@
 	<!-- LIST -->
 			<LinearLayout android:orientation="vertical"
 		android:background="@color/green" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_weight=".3" android:layout_marginTop="10px">
+		android:layout_height="fill_parent" android:layout_marginTop="10px" android:layout_weight=".4">
 		<ListView android:id="@+id/android:list"
 			android:textColor="@color/gray"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" />
@@ -31,14 +31,14 @@
 		<LinearLayout android:layout_width="fill_parent"
 			android:layout_height="fill_parent" android:layout_weight="1">
 			<Button android:id="@+id/button_scan" android:layout_width="fill_parent"
-				android:text="Scan for memories" android:layout_height="fill_parent" android:height="50px"/>
+				android:text="Scan for memories" android:layout_height="fill_parent" android:height="50px" android:minHeight="50px"/>
 		</LinearLayout>
 		<!-- MAP -->
 		<LinearLayout android:layout_width="fill_parent"
 			 android:layout_height="fill_parent" android:background="@color/green"
 			android:layout_weight="1">
 			<Button android:id="@+id/button_map" android:layout_width="fill_parent"
-				android:text="Map of memories" android:layout_height="fill_parent" android:height="50px"/>
+				android:text="Map of memories" android:layout_height="fill_parent" android:height="50px" android:minHeight="50px"/>
 		</LinearLayout>
 	</LinearLayout>
 
