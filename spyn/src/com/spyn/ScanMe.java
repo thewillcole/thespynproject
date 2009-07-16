@@ -22,16 +22,28 @@ package com.spyn;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.Paint.Align;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,11 +65,14 @@ public class ScanMe extends Activity {
 	public final static String DRAW_ON_TOP = "draw_on_top";
 	
 	public String myAction;
-	
+
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        		WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		Intent intent = getIntent();
 		myAction = intent.getAction();
 		
@@ -67,7 +82,20 @@ public class ScanMe extends Activity {
 			(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		} else if (myAction.equals(ScanMe.ACTION_STORE)) {
 			// scan for a new memory
-			callStoreMultiScan();
+			Bitmap bitmap = null;
+			if (Spyn.NUM_SCANS == 1) { 
+				bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
+			} else if (Spyn.NUM_SCANS == 2) { 
+				bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP_2);
+			} else if (Spyn.NUM_SCANS == 3) { 
+				bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP_3);
+			}
+			if (bitmap!=null){
+				setContentView(new MyView(this,bitmap));
+			} else {
+	    		callStartScanMe();
+			}
+			//callStoreMultiScan();
 			
 			// Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
 			// callStoreScan(bitmap);
@@ -84,13 +112,11 @@ public class ScanMe extends Activity {
 
     	public DrawOnTop(Context context) {
     	super(context);
-    	// TODO Auto-generated constructor stub
     	}
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-    	// TODO Auto-generated method stub
-
+    	
     	Paint paint = new Paint();
     	paint.setStyle(Paint.Style.FILL);
     	paint.setColor(Color.RED);
@@ -102,6 +128,113 @@ public class ScanMe extends Activity {
     	}
 
     }*/
+		
+		public class MyView extends LinearLayout {
+	    private static final float MINP = 0.25f;
+        private static final float MAXP = 0.75f;
+        
+        private Context mContext;
+        private Bitmap  mBitmap;
+        private Drawable nDraw;
+        Picture mPicture;
+        //private Canvas  mCanvas;
+       
+        public MyView(Context c, Bitmap bit) {
+            super(c);
+            mContext = c;
+            mBitmap = bit;
+            //mPicture = new Picture();
+            //mCanvas = new Canvas(mBitmap);
+            this.setLayoutParams( new
+                        ViewGroup.LayoutParams( LayoutParams.FILL_PARENT,
+                        LayoutParams.FILL_PARENT ) ); 
+            BitmapDrawable drawable = new BitmapDrawable(bit);
+            this.setBackgroundDrawable(drawable);	
+        
+        }
+        
+        @Override 
+    	public boolean onTouchEvent(MotionEvent event) { 
+    		switch (event.getAction()) { 
+    			case MotionEvent.ACTION_DOWN: // doesn't fire 
+    				// Get point of user's touch
+    				int touchX=0; 
+    				int touchY=0;
+    				touchX = (int)event.getX(); 
+    	            touchY = (int)event.getY(); 
+    	            int screenW = 200;
+    	            int screenH = 400;
+    	            final int BUFX = 65;
+    	            final int BUFY = 30;
+
+    	            // Analyze point for row number and store
+    	            analyzeTouchPoint(touchX,touchY);
+    	            // Alert user
+    	            Toast.makeText(ScanMe.this, "Spyn will attach your message \nto row "+Spyn.TOTAL_ROWCOUNT+".", Toast.LENGTH_SHORT).show();
+    	            
+    	            // Create pin overlay at that point
+    	            final ImageView imgb = new ImageView(mContext);
+    	            imgb.setImageResource(R.drawable.pin_v1);
+    	            //imgb.setPadding(touchX/2, touchY/2, 0, 0);
+    	            int setX = touchX; int setY = touchY;
+    	            if (touchX > BUFX){
+    	            	setX = touchX-BUFX;
+    	            } 
+    	            if (touchY > BUFY){
+    	            	setY = touchY-BUFY;
+    	            } 
+    	            imgb.setPadding(setX, setY, 0, 0);
+    	            LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    	            params1.leftMargin = touchX; params1.topMargin = touchY;
+    	            ScanMe.this.addContentView(imgb, params1);
+    	            
+    	            myClickHandler();
+    	            
+    	            return true; 
+    		} 
+    		return true;
+    	} 
+    	private void myClickHandler() {
+    		// Toast.makeText(ScanMe.this, "TOUCHED "+touchX+" "+touchY, Toast.LENGTH_SHORT).show();
+    		callStartScanMe();
+    	}
+    	
+    	private void analyzeTouchPoint(int mX, int mY) {
+    		float mRatio = 1;
+    		int mHeight = 479; // width is 319, height is 479;
+    		int old_total = Spyn.TOTAL_ROWCOUNT;
+    		
+    		//Toast.makeText(ScanMe.this, mX+", "+mY+"\n", Toast.LENGTH_LONG).show();
+    		//Toast.makeText(ScanMe.this, mHeight+", "+Spyn.TOTAL_ROWCOUNT, Toast.LENGTH_LONG).show();
+    		
+    		// calculate numerator: how many rows we're counting
+    		float mNumerator=(mHeight-mY)+(mHeight*(Spyn.NUM_SCANS-1)); 
+    		// calculate denominator: how many rows there are total
+    		float mDenominator = (mHeight*(Spyn.NUM_SCANS));
+    		if ((mDenominator-mNumerator)>0) {
+    			mRatio = mNumerator/mDenominator;
+    		} 
+    		float temp = ((float)old_total)*mRatio;
+    		Spyn.TOTAL_ROWCOUNT = (int)(temp);
+    		
+    		//Toast.makeText(ScanMe.this, "You attached a message to row "+touchX+" "+touchY, Toast.LENGTH_SHORT).show();
+    		Toast.makeText(ScanMe.this, "You pinned row "+Spyn.TOTAL_ROWCOUNT+" \nout of "+old_total+" rows scanned.", Toast.LENGTH_LONG).show();
+			
+    	}
+	}
+	
+	
+
+	
+	/*
+	public boolean onTouchEvent(MotionEvent event){
+		if (layout.onTouchEvent(event)) {
+			Toast.makeText(ScanMe.this, "TOUCHED", Toast.LENGTH_LONG).show();
+			
+		return true;
+		}
+		return super.onTouchEvent(event);
+	}*/
     
 	// multiple scans for a new memory
 	public void callStoreMultiScan() {
@@ -115,23 +248,18 @@ public class ScanMe extends Activity {
 		onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.KEYCODE_BACK, KeyEvent.ACTION_DOWN));
 	}
 	
-	/* scan for a new memory
-	public void callStoreScan(Bitmap bitmap) {
+	// multiple scans for a new memory
+	public void callStartScanMe() {
 		Intent intent = getIntent();
-		//Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
-		
-		int avgrow = countStitches(bitmap)[0];
-		
 		Intent returnIntent = new Intent();
-		returnIntent.putExtra(INTENT_AVGROW, avgrow);
+		returnIntent.putExtra(INTENT_AVGROW, Spyn.TOTAL_ROWCOUNT);
+		// Spyn.TOTAL_ROWCOUNT = 0;
 		setResult(RESULT_OK, returnIntent);
-		
 		//this is a good, cheap way to exit the ScanMe activity
 		//it just emulates the user pressing the back button
 		onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.KEYCODE_BACK, KeyEvent.ACTION_DOWN));
-	}*/
+	}
 	
-
 	// scan a completed knit for all memories in it
 	public void callExtractScan() {
 		//int[] all_locations; // list of X,Y positions of memories

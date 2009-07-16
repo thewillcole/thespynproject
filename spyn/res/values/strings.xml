@@ -8,7 +8,7 @@
     <string name="title">Title</string>
     <string name="title_edit">Create Message</string>
     <string name="title_view">Your Message</string>
-    <string name="mainscreentitle">Spyn</string>
+    <string name="mainscreentitle">Spyn Messages:</string>
     <string name="nomessage">No messages recorded.</string>
     <string name="body">Message</string>
     <string name="confirm">Save Memory</string>

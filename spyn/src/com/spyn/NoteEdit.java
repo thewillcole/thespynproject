@@ -75,20 +75,7 @@ public class NoteEdit extends Activity {
         	setContentView(R.layout.note_edit);
         	
     		callLocateMe();
-    		/*
-        	// Added code to get location on create
-        	//mLocationText.setText("Loading...");
-    	    WhereamiLocationListener listener = new WhereamiLocationListener();
-    	    LocationManager manager = (LocationManager)
-    	    	getSystemService(NoteEdit.this.LOCATION_SERVICE);
-    	    long updateTimeMsec = 1000L;
-    	    manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-    	updateTimeMsec, 500.0f,
-    	        listener);
-    	    manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-    	updateTimeMsec, 500.0f,
-    	        listener);
-    	    */
+    		
         } else if (mAction.equals(NotesDbAdapter.ACTION_EDIT)) {
         	setContentView(R.layout.note_edit);
         } else if (mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
@@ -123,7 +110,9 @@ public class NoteEdit extends Activity {
         	Bundle extras = getIntent().getExtras(); 
         	mRowId = extras != null ? extras.getLong(NotesDbAdapter.KEY_ROWID) : null;
         }
-
+        
+        Toast.makeText(NoteEdit.this, "Retrieving message with RowID: " + mRowId, Toast.LENGTH_SHORT).show();
+        
         //-------------
         // BUTTONS
         // ------------
@@ -212,15 +201,7 @@ public class NoteEdit extends Activity {
         	public void onClick(View view) {
         		callVideo();
         	}});
-		
-        
-        // find LOCATION
-        //if (mLocationText.getText().toString().equals("")) {
-        	//callLocateMe();
-        	/*saveState();
-			Toast.makeText(NoteEdit.this, "LocateMe CALLED in OnCreate", Toast.LENGTH_SHORT).show();
-			saveState();*/
-        //}        
+		    
         //------------------
         // POPULATE AND SAVE
         //------------------
@@ -430,8 +411,9 @@ public class NoteEdit extends Activity {
         			photoImageButton.setVisibility(View.VISIBLE);
         			
         			// Saved State, now reset row count
-        			Spyn.TOTAL_ROWCOUNT = 0;
-
+        			//Spyn.TOTAL_ROWCOUNT = 0;
+        			Spyn.resetRowCount();
+        			
         		} catch (Exception e) {
         			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
         		}

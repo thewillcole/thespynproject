@@ -52,7 +52,6 @@ public class RecallMe extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		//SETUP
         mDbHelper = new NotesDbAdapter(this);
         mDbHelper.open();
@@ -60,6 +59,7 @@ public class RecallMe extends Activity {
 		//Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
 		Bitmap bitmap_to_show = null;
 		Bitmap bitmap = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP);
+		int oldW = bitmap.getWidth();
 		if (Spyn.NUM_SCANS == 2) {
 			Bitmap bitmap2 = (Bitmap) intent.getExtras().get(ScanMe.INTENT_BITMAP_2);
 			bitmap_to_show = getStitchedImage(2,bitmap,bitmap2,null);
@@ -72,25 +72,36 @@ public class RecallMe extends Activity {
 		// For debugging
 		if (bitmap_to_show == null) {
 			bitmap_to_show = bitmap;
-		}
-		
+		} 
+		/*
+		Bitmap finalBit = Bitmap.createBitmap(bitmap_to_show, 0, 0, 
+				(int)(Math.round(bitmap_to_show.getWidth()/Spyn.NUM_SCANS)), bitmap_to_show.getHeight());
+		Toast.makeText(this, "WIDTH OF IMG: " + bitmap_to_show.getWidth()+", "+oldW, Toast.LENGTH_LONG).show();
+		*/		
 		layout = new LinearLayout(this);
         layout.setLayoutParams( new
                         ViewGroup.LayoutParams( LayoutParams.FILL_PARENT,
                         LayoutParams.FILL_PARENT ) ); 
         
         
-        
+        //int mWid = (int)(Math.round((float)bitmap_to_show.getWidth()/(float)Spyn.NUM_SCANS));
+        //int mSpace = layout.getWidth() - mWid;
+        //int mWBuff = (int)Math.round(mSpace/2);
         BitmapDrawable drawable = new BitmapDrawable(bitmap_to_show);
-        //BitmapDrawable drawable = new BitmapDrawable(new_bit);
+        
+        //drawable.setBounds(mWBuff, 0, layout.getWidth()-mWBuff, 0);
+        //layout.setMinimumWidth((int)(Math.round(bitmap_to_show.getWidth()/Spyn.NUM_SCANS)));
+        //BitmapDrawable drawable = new BitmapDrawable(finalBit);
         layout.setBackgroundDrawable(drawable);	
+        
         this.setContentView(layout); 
        
 		// SAVE MAX ROW
 		MAX_ROW = Spyn.TOTAL_ROWCOUNT;
 		
 		// RESET ROW COUNT
-		Spyn.TOTAL_ROWCOUNT = 0;
+		//Spyn.TOTAL_ROWCOUNT = 0;
+		Spyn.resetRowCount();
 		getRowIDsAndRowCounts();
 		
 		//TEARDOWN
@@ -111,11 +122,13 @@ public class RecallMe extends Activity {
 		}
 		Bitmap bitmap_to_show = Bitmap.createBitmap(resizedBitmap1.getWidth(),
 				(resizedBitmap1.getHeight()*num_imgs),Config.ARGB_8888);
-        copyImage(num_imgs,bitmap_to_show,resizedBitmap1,resizedBitmap2,resizedBitmap3);
+        //copyImage(num_imgs,bitmap_to_show,resizedBitmap1,resizedBitmap2,resizedBitmap3);
+        copyImage(num_imgs,bitmap_to_show,resizedBitmap3,resizedBitmap2,resizedBitmap1);
         return bitmap_to_show;
 	}
 	
 	public void copyImage(int num_imgs,Bitmap bmDest,Bitmap bmSrc1,Bitmap bmSrc2,Bitmap bmSrc3){
+		/** For taking an image of knit bottom to knit top **/
 		if (num_imgs==2) {
 			for(int x = 0x00; x <  bmSrc1.getWidth(); x++){
 				for(int y = 0x00; y < bmSrc1.getHeight(); y++){
@@ -132,6 +145,41 @@ public class RecallMe extends Activity {
 	        	}
 			}
 	    }
+		
+		/*if (num_imgs==2) {
+			for(int x = 0x00; x <  bmSrc1.getWidth(); x++){
+				for(int y = 0x00; y < bmSrc1.getHeight(); y++){
+					bmDest.setPixel(x, y, bmSrc2.getPixel(x, y));
+					bmDest.setPixel(x, y+bmSrc2.getHeight(), bmSrc1.getPixel(x, y));
+	        	}
+			}
+	    } else if (num_imgs==3){
+			for(int x = 0x00; x <  bmSrc1.getWidth(); x++){
+				for(int y = 0x00; y < bmSrc1.getHeight(); y++){
+					bmDest.setPixel(x, y, bmSrc1.getPixel(x, y));
+					bmDest.setPixel(x, y+bmSrc2.getHeight(), bmSrc3.getPixel(x, y));
+					bmDest.setPixel(x, y+(bmSrc2.getHeight()*2), bmSrc2.getPixel(x, y));
+	        	}
+			}
+	    }
+		*/
+		/** For taking an image knit top to knit bottom **/
+		/*if (num_imgs==2) {
+			for(int x = 0x00; x <  bmSrc1.getWidth(); x++){
+				for(int y = 0x00; y < bmSrc1.getHeight(); y++){
+					bmDest.setPixel(x, y, bmSrc1.getPixel(x, y));
+					bmDest.setPixel(x, y+bmSrc2.getHeight(), bmSrc2.getPixel(x, y));
+	        	}
+			}
+	    } else if (num_imgs==3){
+			for(int x = 0x00; x <  bmSrc1.getWidth(); x++){
+				for(int y = 0x00; y < bmSrc1.getHeight(); y++){
+					bmDest.setPixel(x, y, bmSrc1.getPixel(x, y));
+					bmDest.setPixel(x, y+bmSrc2.getHeight(), bmSrc2.getPixel(x, y));
+					bmDest.setPixel(x, y+(bmSrc2.getHeight()*2), bmSrc3.getPixel(x, y));
+	        	}
+			}
+	    }*/
 	}
 
 	public Bitmap resizeBitmap(int num_imgs,Bitmap bitmap) {
@@ -234,7 +282,7 @@ public class RecallMe extends Activity {
             	boolean hasBeenClicked = false;
             	
             	callNoteEdit(myRowID);
-            	Toast.makeText(RecallMe.this, "Message at row:" + rowCount, Toast.LENGTH_SHORT).show();
+            	Toast.makeText(RecallMe.this, "Recalling message attached to row " + rowCount+".", Toast.LENGTH_SHORT).show();
             	
 //            	if (hasBeenClicked) {
 //            	callNoteEdit(myRowID);
