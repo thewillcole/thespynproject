@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ZoomControls;
@@ -67,7 +68,7 @@ public class LocateWe extends MapActivity {
         linearLayout.addView(mZoom); // plug ZoomControls into the LinearLayout
         mapOverlays = mapView.getOverlays(); // returns arraylist's contents
         drawable = this.getResources().getDrawable(R.drawable.pin_v1); // marker image (android bot)
-        itemizedOverlay = new LocateMeItemizedOverlay(drawable);   
+        itemizedOverlay = new LocateMeItemizedOverlay(drawable, LocateWe.this);   
         
         placeMarkers();
         mDbHelper.close();
@@ -84,6 +85,11 @@ public class LocateWe extends MapActivity {
     	GeoPoint[] geopoints = new GeoPoint[notes.getCount()];
     	OverlayItem myLocationOverlay;
     	notes.moveToNext();
+    	
+    	String[] mTitles = new String[notes.getCount()];
+    	String[] mBodiess = new String[notes.getCount()];
+    	String[] mRowIDs = new String[notes.getCount()];
+    	
     	for (int i = 0; !notes.isAfterLast(); i++) {
     		try {	
     			int templat = (int) (1E6 * Double.parseDouble(
@@ -97,10 +103,18 @@ public class LocateWe extends MapActivity {
     							notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWID)));
         		geopoints[i] = new GeoPoint(templat,templon);
         		
+        		
+        		mTitles[i] = notes.getString(
+						notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_TITLE));
+
+        		mBodiess[i] = notes.getString(
+						notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_BODY));
+        		mRowIDs[i] = notes.getString(
+						notes.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWID));
+        		
         		// Center map around last point
         		if (notes.isLast()) {
-        			//Toast.makeText(this, "lat/lon: " + templat+" "+templon, Toast.LENGTH_LONG).show();
-            		mapView.getController().setCenter(geopoints[i]);
+        			mapView.getController().setCenter(geopoints[i]);
         		}
     		} catch (NumberFormatException nfe) {
     			Toast.makeText(this, "LOCATEWE:\nERROR:\nNFE\n" + nfe, Toast.LENGTH_LONG).show();
@@ -113,7 +127,7 @@ public class LocateWe extends MapActivity {
     		}
     		
     		notes.moveToNext();
-    		myLocationOverlay = new OverlayItem(geopoints[i], "", "");
+    		myLocationOverlay = new OverlayItem(geopoints[i], mTitles[i], mBodiess[i]);
     		itemizedOverlay.addOverlay(myLocationOverlay);
 //    		public final boolean myLocationOverlay.onTouchEvent(MotionEvent e) {
 //    			
@@ -122,16 +136,18 @@ public class LocateWe extends MapActivity {
     	mapOverlays.add(itemizedOverlay);
     }
     
-    private GeoPoint getPoint(double lat, double lon) {
-		return(new GeoPoint((int)(lat*1000000.0),
-													(int)(lon*1000000.0)));
-	}
-    
-//    public boolean onTouchEvent(android.view.MotionEvent e, MapView mapView) {
-//    	//super.onTouchEvent(e);
-//    	
-//    	return false;
-//    }
+    /*
+    public boolean onTouchEvent(android.view.MotionEvent e, MapView mapView) {
+    	super.onTouchEvent(e);
+    	Toast.makeText(this, "TOUCHED", Toast.LENGTH_LONG).show();
+	  	return true;
+	}*/
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+    	Toast.makeText(this, "TOUCHED", Toast.LENGTH_LONG).show();
+		return super.onTouchEvent(event);
+    }
    
+
 }

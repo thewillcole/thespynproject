@@ -31,6 +31,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Align;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 //import android.os.AsyncTask;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -57,6 +59,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -67,6 +70,7 @@ public class Spyn extends ListActivity {
 	public static int LAST_ROWCOUNT=0; // row count for most recent image of knit
 	public static int NUM_SCANS=0; // number of scans user wants to take of the knit
 	public static int SCANS_LEFT = 0; // how many scans left
+	public static int REQUEST_CODE = 0;
 	
 	// Variables for determining the row ratio with a dialog on launch
 	private static boolean LAUNCH = false;
@@ -86,13 +90,13 @@ public class Spyn extends ListActivity {
     
     //scan recall
     public static final int ACTIVITY_RECALL_PHOTO= 21;
+    public static final int ACTIVITY_START_SCAN = 40;
     
-    //private static final int INSERT_ID = Menu.FIRST;
     private static final int MENU_ADD = -1;
     private static final int MENU_EDIT = -2;
     private static final int MENU_SCAN = -3;
     private static final int DELETE_ID = Menu.FIRST + 1;
-
+    
     private NotesDbAdapter mDbHelper;
     
     // Daniela's code for camera app
@@ -139,16 +143,17 @@ public class Spyn extends ListActivity {
                 	ROW_RATIO = 2;
                 }
             })
+            /*
             .setNegativeButton("Stockinette Stitch", new
             		DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog,int whichButton) {
                 	ROW_RATIO = 1;
                 }
-            })
-            .setNeutralButton("Seed Stitch", new
+            })*/
+            .setNeutralButton("Seed or Stockinette Stitch", new
             		DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog,int whichButton) {
-                	ROW_RATIO = 2;
+                	ROW_RATIO = 1;
                 }
             })
             .show(); 
@@ -196,123 +201,34 @@ public class Spyn extends ListActivity {
     }
     
     public void callPhotographMe(final int activity) {
-    	
-    	// Check if scanning more than one image of knit
-    	new AlertDialog.Builder(this)
-    	.setTitle("How many scans?")
-        .setPositiveButton("One", new
-        		DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog,int whichButton) {
-            	setNumberScans(1);
-            	//Toast.makeText(Spyn.this, "Scanning one image of knit...", Toast.LENGTH_SHORT).show();	
-   			 	photoHandler(activity);
-            }
-        })
-        .setNegativeButton("More", new
-        		DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog,int whichButton) {
-            	multiPhotoHandler(activity);
-            }
-        })
-        .show(); 
-    	
-    	
-    	/*
-        Button btn2 = new Button(this);
-    	btn2.setText("One Image of Knit");
-    	btn2.setId(btnId);
-    	//Button btn1 = (Button) findViewById(R.id.SCAN_one_image);
-    	btn2.setOnClickListener(new OnClickListener() {
-    		 public void onClick(View v) {
-    			 //dg.hide(); //visibility.gone(); 
-    			 Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-    			 startActivityForResult(intent,activity);
-    		 }
-    	});	
-        dg.addContentView(btn2, params1);
-		*/
-    	
-    	//Intent intent = new Intent("android.media.action.");
-    	//intent.putExtra(MediaStore.MEDIA_SCANNER_VOLUME, Uri.fromFile(new File(Environment.getExternalStorageDirectory(),"scan_photo.jpg")));
-		/*
-		 * Daniela's Code to Lay Images on Top of Camera Preview
-		 */
-    	//setContentView(R.layout.photographme_main);
-    	/*preview=(SurfaceView)findViewById(R.id.surface);
-		previewHolder=preview.getHolder();
-		previewHolder.addCallback(surfaceCallback);
-		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		*/
-		//DrawOnTop mDraw = new DrawOnTop(this);
-        //LayoutParams params = new LayoutParams (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        //addContentView(mDraw, params); 
-    	
-    	
-    	// OLD CODE (Will): 
-    	//Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-    	//intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(FILE_PATH)));
-    	
-    	// Daniela: //
-    	// Toast.makeText(this, "CALLING DrawOnTopMethod", Toast.LENGTH_LONG).show();
-    	// LayoutParams params = new LayoutParams (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-    	// DrawOnTop mDraw = new DrawOnTop(this);
-		// addContentView(mDraw,params);
-        
+    	resetRowCount();
+    	Toast.makeText(Spyn.this, "Align bottom of knit to \nbottom of camera display.", Toast.LENGTH_LONG).show();	
+        multi_photo_handler(activity);
     }
     
-    private void setNumberScans(int num) {
-    	NUM_SCANS = num;
-    	SCANS_LEFT = NUM_SCANS;
-    }
-    
-    private void resetRowCount() {
+    public static void resetRowCount() {
     	NUM_SCANS = 0;
     	SCANS_LEFT = 0;
     	TOTAL_ROWCOUNT = 0;
     }
-    private void multiPhotoHandler(final int activity) {
-    	final Dialog dg = new Dialog(this);
-    	final String[] btns = {"one image","two images","three images"};
-    	final int TOADD = 1;
-    	
-    	dg.setTitle("Scan Preferences");
-    	dg.setContentView(R.layout.preferences);
-    	dg.show(); 
-
-    	RadioGroup rg = new RadioGroup(this);
-    	//rg.setGravity(Gravity.LEFT);
-    	rg.setPadding(10,20,0,0);
-    	rg.setMinimumWidth(300);
-    	dg.addContentView(rg, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-    	
-    	for (int b=0; b<btns.length; b++) {
-    		final int num_imgs = b+TOADD;
-        	RadioButton btn = new RadioButton(this);
-        	btn.setText("Scan "+btns[b]+" of knit");
-        	btn.setId(b+TOADD);
-        	btn.setOnClickListener(new OnClickListener() {
-        		 public void onClick(View v) {
-        			 dg.hide();
-        			 setNumberScans(num_imgs);
-        			 //Toast.makeText(Spyn.this, "multiPhotoHandler: Scanning "+btns[num_imgs-TOADD]+" of knit...", Toast.LENGTH_LONG).show();	
-        			 photoHandler(activity);
-        		 }
-        	});	
-        	rg.addView(btn);
-    	}
-    }
     
-    private void photoHandler(int activity) {
+    
+    
+    private void multi_photo_handler(int activity) {
      	if (TOTAL_ROWCOUNT!=0) {
-    		Toast.makeText(Spyn.this, "You scanned "+TOTAL_ROWCOUNT+" rows of your knit.", Toast.LENGTH_SHORT).show();	
-    	}
+     		int scan_left = 3-NUM_SCANS;
+    		//Toast.makeText(Spyn.this, "You scanned "+TOTAL_ROWCOUNT+" rows.\n You have "+scan_left+" scans left.", Toast.LENGTH_SHORT).show();	
+    	} 
     	
     	Toast.makeText(Spyn.this, "Tap \"Attach\" to save after you take the picture.", Toast.LENGTH_SHORT).show();	
     	Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+    	//Intent intent = new Intent("INTENT_ACTION_STILL_IMAGE_CAMERA");
     	startActivityForResult(intent,activity);
 
     }
- 
+    
+    
+    
     public void callScanMeFromRowCount() {
 		Intent i = new Intent(this, ScanMe.class);
     	i.putExtra(ScanMe.INTENT_BITMAP, bitmap1);
@@ -321,6 +237,24 @@ public class Spyn extends ListActivity {
     	} else if (NUM_SCANS == 3) {
     		i.putExtra(ScanMe.INTENT_BITMAP_3, bitmap3);
     	}
+    	i.setAction(ScanMe.ACTION_STORE);
+    	startActivityForResult(i, ACTIVITY_CREATE_SCAN);
+    }
+    
+    public void callPlaceMeFromRowCount() {
+    	Intent i = new Intent(this, ScanMe.class);
+    	Bitmap bitmap_to_show = null;
+		if (NUM_SCANS == 1) {
+        	i.putExtra(ScanMe.INTENT_BITMAP, bitmap1);
+        	bitmap_to_show = bitmap1;
+    	} else  if (NUM_SCANS == 2) {
+    		i.putExtra(ScanMe.INTENT_BITMAP_2, bitmap2);
+    		bitmap_to_show = bitmap2;
+    	} else if (NUM_SCANS == 3) {
+        	i.putExtra(ScanMe.INTENT_BITMAP_3, bitmap3);
+        	bitmap_to_show = bitmap3;
+    	}
+		
     	i.setAction(ScanMe.ACTION_STORE);
     	startActivityForResult(i, ACTIVITY_CREATE_SCAN);
     }
@@ -359,7 +293,7 @@ public class Spyn extends ListActivity {
         //menu.add(0, INSERT_ID, 0, R.string.menu_insert);
         menu.add(0, MENU_SCAN, 0, R.string.menu_insert_new);
         menu.add(0, MENU_EDIT, 0, R.string.menu_insert_edit);
-        menu.add(0, MENU_ADD, 0, "TEST");
+        //menu.add(0, MENU_ADD, 0, "TEST");
         return true;
     }
 
@@ -440,7 +374,64 @@ public class Spyn extends ListActivity {
         super.onListItemClick(l, v, position, id);
         viewNote(id);
     }
-
+    
+    private void call_dialog_handler(int resultCode, Intent data) {
+    	// Show image
+    	NUM_SCANS++;
+    	if(NUM_SCANS==3) {
+    		bitmap3 = (Bitmap) data.getExtras().get("data");
+    		//mDrawable = new BitmapDrawable(bitmap3);
+    		//layout.setBackgroundDrawable(mDrawable);	
+    		TOTAL_ROWCOUNT = TOTAL_ROWCOUNT + (int)ScanMe.processImg(bitmap3)[0];
+    		end_scanning();
+    	} else {
+    		if (NUM_SCANS==1) {
+        		bitmap1 = (Bitmap) data.getExtras().get("data");
+        		//mDrawable = new BitmapDrawable(bitmap1);
+        		//layout.setBackgroundDrawable(mDrawable);	
+        		TOTAL_ROWCOUNT = TOTAL_ROWCOUNT + (int)ScanMe.processImg(bitmap1)[0];
+        	} else if (NUM_SCANS==2) {
+        		bitmap2 = (Bitmap) data.getExtras().get("data");
+        		//mDrawable = new BitmapDrawable(bitmap2);
+        		//layout.setBackgroundDrawable(mDrawable);	
+        		TOTAL_ROWCOUNT = TOTAL_ROWCOUNT + (int)ScanMe.processImg(bitmap2)[0];
+        	}
+    		new AlertDialog.Builder(this)
+    		.setTitle("Another scan?")
+    		.setPositiveButton("Yes", new
+    				DialogInterface.OnClickListener(){
+    			public void onClick(DialogInterface dialog,int whichButton) {
+    				continue_scanning();
+    			}
+    		})
+    		.setNegativeButton("No", new
+    				DialogInterface.OnClickListener(){
+    			public void onClick(DialogInterface dialog,int whichButton) {
+    				end_scanning();
+    			}
+    		})
+    		.show(); 
+    	}
+    	
+        //this.setContentView(layout); 
+        
+    }
+    
+    public void end_scanning() {
+    	if (REQUEST_CODE==Spyn.ACTIVITY_RECALL_PHOTO) {
+    		Toast.makeText(this, "Spyn will recall messages \nfrom "+TOTAL_ROWCOUNT+" rows.", Toast.LENGTH_SHORT).show();
+    		callRecallMeFromRowCount();
+		} else {
+			Toast.makeText(this, "Touch the screen to pin your knit!", Toast.LENGTH_SHORT).show();
+			callPlaceMeFromRowCount();
+			//callScanMeFromRowCount();
+		}
+    }
+    
+    public void continue_scanning() {
+    	multi_photo_handler(REQUEST_CODE);
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -448,55 +439,22 @@ public class Spyn extends ListActivity {
         		|| (requestCode==Spyn.ACTIVITY_CREATE_PHOTO && resultCode==Activity.RESULT_OK)){
         	// Recall: photo => recall
         	// check which scan we're on so that we can take photos of entire knit
-        	if (SCANS_LEFT == 3) { // for debugging
-        		SCANS_LEFT = SCANS_LEFT - 1;
-        		bitmap3 = (Bitmap) data.getExtras().get("data");
-        		// SCAN THIS IMAGE
-        		TOTAL_ROWCOUNT = TOTAL_ROWCOUNT + (int)ScanMe.processImg(bitmap3)[0];
-        		photoHandler(requestCode);
-        	} else if (SCANS_LEFT == 2) {
-        		SCANS_LEFT = SCANS_LEFT - 1;
-        		bitmap2 = (Bitmap) data.getExtras().get("data");
-        		TOTAL_ROWCOUNT = TOTAL_ROWCOUNT + (int)ScanMe.processImg(bitmap2)[0];
-        		photoHandler(requestCode);
-        	} else if (SCANS_LEFT == 1) {
-        		SCANS_LEFT = SCANS_LEFT - 1;
-        		bitmap1 = (Bitmap) data.getExtras().get("data");
-        		TOTAL_ROWCOUNT = TOTAL_ROWCOUNT + (int)ScanMe.processImg(bitmap1)[0];
-        		// On last scan
-        		//Toast.makeText(this, "This was the final scan. \nSpyn counted "+TOTAL_ROWCOUNT+" rows.", Toast.LENGTH_SHORT).show();
-        		if (requestCode==Spyn.ACTIVITY_RECALL_PHOTO) {
-        			callRecallMeFromRowCount();
-        		} else {
-        			callScanMeFromRowCount();
-        		}
-        	}
-        } else if (requestCode==Spyn.ACTIVITY_CREATE_SCAN && resultCode==Activity.RESULT_OK) {
-        	//int rowcount = (int) data.getIntExtra(ScanMe.INTENT_AVGROW, -1);
-        	//Toast.makeText(this, "SCAN returned\n With Row:" + rowcount, Toast.LENGTH_LONG).show();
-        	//callCreateMemory(rowcount);
+        	
+        	// TEST CODE
+        	REQUEST_CODE = requestCode;
+        	call_dialog_handler(resultCode, data);
+        	
+        } else if (requestCode==Spyn.ACTIVITY_START_SCAN && resultCode==Activity.RESULT_OK) {
+        	Toast.makeText(this, "GOT TO RETURN RESULTS", Toast.LENGTH_SHORT).show();
+    		callScanMeFromRowCount();
+    	} else if (requestCode==Spyn.ACTIVITY_CREATE_SCAN && resultCode==Activity.RESULT_OK) {
         	callCreateMemory(TOTAL_ROWCOUNT);
     	} else if (requestCode==Spyn.ACTIVITY_CREATE_CREATE && resultCode==Activity.RESULT_OK) {
-
     		//Toast.makeText(this, "CREATE CREATE: reset row count", Toast.LENGTH_LONG).show();
-    		//resetRowCount();
     	} else {
     		///Toast.makeText(this, "Back...", Toast.LENGTH_LONG).show();
             //Toast.makeText(this, "onActvityResult FAIL", Toast.LENGTH_LONG).show();
         }
     }
     
-    public void storeBitmap(Bitmap bmp) {
-
-		//callRecallMe(bmp);
-    }
-
-    public void combineBitmaps(Bitmap bmp1, Bitmap bmp2) {
-    	Bitmap cmb = bmp1.createBitmap(bmp1.getWidth(), bmp1.getHeight()+bmp2.getHeight(), Bitmap.Config.RGB_565); //.copy(Config.RGB_565, true);
-
-    	// use createBitmap for cropping
-    			
-    }
 }
-
-
