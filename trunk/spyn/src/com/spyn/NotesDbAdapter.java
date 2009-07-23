@@ -47,7 +47,17 @@ public class NotesDbAdapter {
     public static final String KEY_LOCATION_LAT = "latitude";
     public static final String KEY_LOCATION_LON = "longitude";
     public static final String KEY_ROWCOUNT = "rowcount";
+    public static final String KEY_STITCHCOUNT = "stitchcount";
     public static final String KEY_ROWID = "_id";
+    
+    public static final String PROJ_TITLE = "project_title";
+    public static final String PROJ_DESCRIPTION = "project_description";
+    public static final String PROJ_BACKGROUND= "background_image";
+    public static final String PROJ_CREATE = "create_time";
+    public static final String PROJ_MODIFY = "modify_time";
+    public static final String PROJ_STITCH = "stitch";
+    public static final String PROJ_ROWID = "_id";
+    
     
     public static final String ACTION_CREATE = "create";
     public static final String ACTION_EDIT = "edit";
@@ -57,17 +67,31 @@ public class NotesDbAdapter {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
     
+    //public static long PROJ_ID=-1;
+    
     /**
      * Database creation sql statement
      */
-    private static final String DATABASE_CREATE =
+    private static final String NOTES_TABLE_CREATE =
             "create table notes (_id integer primary key autoincrement, "
                     + "title text not null, time text not null, body text not null, "
-                    + "video int not null, audio int not null, photo int not null, knit int not null, "
-                    + "location text not null, latitude double not null, longitude double not null, rowcount int not null);";
+                    + "video int not null, audio int not null, "
+                    + "photo int not null, knit int not null, location text not null, "
+                    + "latitude double not null, longitude double not null, "
+                    + "rowcount int not null, stitchcount int not null);";
 
-    private static final String DATABASE_NAME = "data";
-    private static final String DATABASE_TABLE = "notes";
+    private static final String DATABASE_PROJECT_CREATE =
+        "create table project (_id integer primary key autoincrement, "
+    			+ "project_description text not null,"
+                + "project_title text not null, create_time text not null, "
+                + "modify_time text not null, "
+                + "stitch integer not null, "
+                + "background_image text not null);";
+
+    
+    private static final String DATABASE_NAME = "spyn.db";
+    private static final String DATABASE_TABLE_NOTES = "notes";
+    private static final String DATABASE_TABLE_PROJECT = "project";
     private static final int DATABASE_VERSION = 2;
 
     private final Context mCtx;
@@ -81,7 +105,8 @@ public class NotesDbAdapter {
         @Override
         public void onCreate(SQLiteDatabase db) {
 
-            db.execSQL(DATABASE_CREATE);
+            db.execSQL(NOTES_TABLE_CREATE);
+            db.execSQL(DATABASE_PROJECT_CREATE);
         }
 
         @Override
@@ -133,7 +158,7 @@ public class NotesDbAdapter {
      * @return rowId or -1 if failed
      */
     public long createNote(String title, String time, String body, int video, int audio, 
-    		int photo, int knit, String location, double latitude, double longitude, int rowcount) {
+    		int photo, long knit, String location, double latitude, double longitude, int rowcount, int stitchcount) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_TITLE, title);
         initialValues.put(KEY_TIME, time);
@@ -146,8 +171,9 @@ public class NotesDbAdapter {
         initialValues.put(KEY_LOCATION_LAT, latitude);
         initialValues.put(KEY_LOCATION_LON, longitude);
         initialValues.put(KEY_ROWCOUNT, rowcount);
+        initialValues.put(KEY_STITCHCOUNT, stitchcount);
 
-        return mDb.insert(DATABASE_TABLE, null, initialValues);
+        return mDb.insert(DATABASE_TABLE_NOTES, null, initialValues);
     }
 
     /**
@@ -158,22 +184,53 @@ public class NotesDbAdapter {
      */
     public boolean deleteNote(long rowId) {
 
-        return mDb.delete(DATABASE_TABLE, KEY_ROWID + "=" + rowId, null) > 0;
+        return mDb.delete(DATABASE_TABLE_NOTES, KEY_ROWID + "=" + rowId, null) > 0;
     }
 
     /**
+     * Return a Cursor over the list of all notes in the database 
+     * 
+     * 
+     * @return Cursor over all notes
+     */
+    public Cursor fetchAllNotesforBackup() {
+    	return mDb.rawQuery("SELECT DISTINCT "+KEY_ROWID+", "+
+    			KEY_TITLE+", "+
+    			KEY_TIME+", "+KEY_BODY+", "+
+    			KEY_VIDEO+", "+KEY_AUDIO+", "+
+    			KEY_PHOTO+", "+ KEY_KNIT+", "+
+                KEY_LOCATION+", "+KEY_LOCATION_LAT+", "+
+                KEY_LOCATION_LON+", "+KEY_ROWCOUNT+", "+
+                KEY_STITCHCOUNT+
+                " FROM "+DATABASE_TABLE_NOTES,null);
+    }
+    
+    /**
      * Return a Cursor over the list of all notes in the database
+     * where the knit_id is project_id
      * 
      * @return Cursor over all notes
      */
     public Cursor fetchAllNotes() {
-
-        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_TITLE,
-                KEY_TIME, KEY_BODY, KEY_VIDEO, KEY_AUDIO, KEY_PHOTO, KEY_KNIT,
-                KEY_LOCATION, KEY_LOCATION_LAT, KEY_LOCATION_LON, KEY_ROWCOUNT}, 
-                null, null, null, null, null);
+    	String mSql = "SELECT * FROM "+ DATABASE_TABLE_NOTES+
+    		" WHERE "+KEY_KNIT+"="+Spyn.PROJ_ID+";";
+    	
+    	return mDb.rawQuery(mSql, null);
     }
-
+    
+    /**
+     * Return a Cursor over the last rowId 
+     * where the knit_id is project_id
+     * 
+     * @return Cursor over all notes
+     */
+    public Cursor fetchLastNoteRowID() {
+    	String mSql = "SELECT MAX("+KEY_ROWID+") FROM "+ DATABASE_TABLE_NOTES +";"; //+
+    		//" WHERE "+KEY_KNIT+"="+Spyn.PROJ_ID+";";
+    	
+    	return mDb.rawQuery(mSql, null);
+    }
+    
     /**
      * Return a Cursor positioned at the note that matches the given rowId
      * 
@@ -181,14 +238,16 @@ public class NotesDbAdapter {
      * @return Cursor positioned to matching note, if found
      * @throws SQLException if note could not be found/retrieved
      */
-    public Cursor fetchNote(long rowId) throws SQLException {
+    public Cursor fetchNote(long rowId, long knitId) throws SQLException {
 
         Cursor mCursor =
 
-                mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
+                mDb.query(true, DATABASE_TABLE_NOTES, new String[] {KEY_ROWID,
                         KEY_TITLE, KEY_TIME, KEY_BODY, KEY_VIDEO, KEY_AUDIO, 
                         KEY_PHOTO, KEY_KNIT, KEY_LOCATION, KEY_LOCATION_LAT,
-                        KEY_LOCATION_LON, KEY_ROWCOUNT}, KEY_ROWID + "=" + rowId, 
+                        KEY_LOCATION_LON, KEY_ROWCOUNT,
+                        KEY_STITCHCOUNT}, KEY_ROWID + "=" + rowId
+                        +" AND "+KEY_KNIT+"="+knitId, 
                         null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
@@ -208,7 +267,7 @@ public class NotesDbAdapter {
      * @return true if the note was successfully updated, false otherwise
      */
     public boolean updateNote(long rowId, String title, String time, String body, 
-    		int video, int audio, int photo, int knit, 
+    		int video, int audio, int photo, long knit, 
     		String location, double latitude, double longitude) {
         ContentValues args = new ContentValues();
         args.put(KEY_TITLE, title);
@@ -217,14 +276,145 @@ public class NotesDbAdapter {
         args.put(KEY_VIDEO, video);
         args.put(KEY_AUDIO, audio);
         args.put(KEY_PHOTO, photo);
-        args.put(KEY_KNIT, knit);
+        args.put(KEY_KNIT, Spyn.PROJ_ID);
         args.put(KEY_LOCATION, location);
         args.put(KEY_LOCATION_LAT, latitude);
         args.put(KEY_LOCATION_LON, longitude);
-        Cursor cursor = fetchNote(rowId);
+        Cursor cursor = fetchNote(rowId,Spyn.PROJ_ID);
         String rowCount = cursor.getString(cursor.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWCOUNT));
         args.put(KEY_ROWCOUNT, rowCount);
+        String stitchcount = cursor.getString(cursor.getColumnIndexOrThrow(NotesDbAdapter.KEY_STITCHCOUNT));
+        args.put(KEY_STITCHCOUNT, stitchcount);
 
-        return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+        return mDb.update(DATABASE_TABLE_NOTES, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
+    
+    /**
+     * Return a Cursor positioned at the note that matches the given rowId
+     * 
+     * @param rowId id of note to retrieve
+     * @return Cursor positioned to matching note, if found
+     * @throws SQLException if note could not be found/retrieved
+     */
+    public Cursor fetchProject(long projId) throws SQLException {
+    	String mSql = "SELECT * FROM "+ DATABASE_TABLE_PROJECT+
+		" WHERE "+PROJ_ROWID+"="+projId+";";
+	
+    	return mDb.rawQuery(mSql, null);
+    	
+    	/*
+        Cursor mCursor =
+
+                mDb.query(true, DATABASE_TABLE_NOTES, new String[] {KEY_ROWID,
+                        KEY_TITLE, KEY_TIME, KEY_BODY, KEY_VIDEO, KEY_AUDIO, 
+                        KEY_PHOTO, KEY_KNIT, KEY_LOCATION, KEY_LOCATION_LAT,
+                        KEY_LOCATION_LON, KEY_ROWCOUNT}, KEY_ROWID + "=" + rowId
+                        +" AND "+KEY_KNIT+"="+knitId, 
+                        null, null, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }*/
+        //return mCursor;
+
+    }
+    
+    /**
+     * Insert into the project table using the details provided. 
+     * 
+     * @param title value to set the project title to
+     * @param description value to set project description to
+     * @param time value of the date and time of creation
+     * @return Cursor positioned to matching project, if successful
+     */
+    public Cursor insertProject(String title, String description, String back_img,String time,int stitch) {
+        Cursor c = mDb.rawQuery("INSERT INTO " + 
+        		DATABASE_TABLE_PROJECT+" ("+PROJ_TITLE+","
+        		+PROJ_DESCRIPTION+","+PROJ_BACKGROUND+","
+        		+PROJ_CREATE+", "+PROJ_MODIFY+", "+PROJ_STITCH+") VALUES (\""
+        		+title+"\",\""+description+"\",\""+back_img+"\",\""
+        		+time+"\", \""+time+"\", \""+stitch+"\");",null); 
+        return c;
+    }
+    /**
+     * Update the note using the details provided. The note to be updated is
+     * specified using the rowId, and it is altered to use the title and body
+     * values passed in
+     * 
+     * @param rowId id of note to update
+     * @param title value to set note title to
+     * @param body value to set note body to
+     * @return true if the note was successfully updated, false otherwise
+     */
+    public boolean updateProject(long projId, String title, String time, 
+    		String body, String photo, int stitch) {
+        ContentValues args = new ContentValues();
+        args.put(PROJ_TITLE, title);
+        args.put(PROJ_MODIFY, time);
+        args.put(PROJ_DESCRIPTION, body);
+        args.put(PROJ_BACKGROUND, photo);
+        args.put(PROJ_STITCH, stitch);
+        
+        return mDb.update(DATABASE_TABLE_PROJECT, args, PROJ_ROWID + "=" + projId, null) > 0;
+    }
+    /**
+     * Update the project table using the details provided. 
+     * 
+     * @param title value to set the project title to
+     * @param description value to set project description to
+     * @param time value of the date and time of creation
+     * @return Cursor positioned to matching project, if successful
+     */
+    public Cursor updateProjectRaw (long rowid, String title, String description, String back_img,String time) {
+        Cursor c = mDb.rawQuery("UPDATE " + 
+        		DATABASE_TABLE_PROJECT
+        		+" SET "
+        		+PROJ_TITLE+"=\""+title
+        		+"\",  "
+        		+PROJ_DESCRIPTION+"=\""+description
+        		+"\",  "
+        		+PROJ_BACKGROUND+"=\""+back_img
+        		+"\",  "
+        		+PROJ_MODIFY+"=\""+time+"\""
+        		+" WHERE "
+        		+PROJ_ROWID+"="+rowid+");",null); 
+        return c;
+    }
+    
+    /**
+     * Create a new note using the title and body provided. If the note is
+     * successfully created return the new rowId for that note, otherwise return
+     * a -1 to indicate failure.
+     * 
+     * @param title the title of the note
+     * @param body the body of the note
+     * @return rowId or -1 if failed
+     */
+    public long createProject(String title, String time, String body, 
+    		String photo, int stitch) {
+        ContentValues initialValues = new ContentValues();
+        initialValues.put(PROJ_TITLE, title);
+        initialValues.put(PROJ_CREATE, time);
+        initialValues.put(PROJ_MODIFY, time);
+        initialValues.put(PROJ_DESCRIPTION, body);
+        initialValues.put(PROJ_BACKGROUND, photo);
+        initialValues.put(PROJ_STITCH, stitch);
+        return mDb.insert(DATABASE_TABLE_PROJECT, null, initialValues);
+        
+    }
+    
+    /**
+     * Select the project details using the details provided. 
+     * 
+     * @param title value to set the project title to
+     * @param description value to set project description to
+     * @param time value of the date and time of creation
+     * @return true if the project was successfully created, false otherwise
+     */
+    public Cursor fetchAllProjects() {
+        Cursor c = mDb.rawQuery("SELECT "+PROJ_TITLE+", "+PROJ_ROWID+" FROM " + 
+        		DATABASE_TABLE_PROJECT,null); 
+        return c;
+    }
+    
+    
 }
