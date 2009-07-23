@@ -33,17 +33,32 @@ public class RecordMe {
 		    }
 		    return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
 	 }
-	public static String getAudioPathFromId(long rowID, String audioID){
-		return sanitizePath("SPYN_rowID_" + rowID + "_audio_" + audioID + ".3gp");
+	public static String getAudioPathFromId(long memID, String audioID){
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_memID_" + memID + audioID + ".3gp");
 	}
 	
-	public static String getPhotoPathFromId(long rowID, String photoID) {
-		return sanitizePath("SPYN_rowID_" + rowID + "_photo_" + photoID + ".png");
+	public static String getPhotoPathFromId(long memID, String photoID) {
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_memID_" + memID + "_photo_" + photoID + ".png");
 	}
 	
-	public static String getVideoPathFromId(long rowID, String videoID) {
-		return sanitizePath("SPYN_rowID_" + rowID + "_audio_" + videoID + ".3gp");
+	public static String getVideoPathFromId(long memID, String videoID) {
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_memID_" + memID + videoID + ".3gp");
 	}
+	
+	public static String getMemoryScanPathFromId(long memID) {
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_memID_" +  memID + "_memory_scan.png");
+	}
+	public static String getTestMemoryScanPathFromId() {
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_memory_scan.png");
+	}
+	
+	public static String getProjPhotoPathFromId() {
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_background_photo.png");
+	}
+	public static String getLastScanPathFromId() {
+		return sanitizePath(Spyn.PROJ_FOLDER+"SPYN_projID_" + Spyn.PROJ_ID + "_last_scan_.png");
+	}
+	
 	
 	public static int getIdFromPath(String path) {
 		path = path.substring(path.lastIndexOf("_") + 1); //remove all before Id
