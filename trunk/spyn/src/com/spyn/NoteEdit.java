@@ -9,12 +9,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.spyn.Knit.Memories;
+import com.spyn.R;
+
 import android.app.Activity;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -44,11 +49,11 @@ public class NoteEdit extends Activity {
     private TextView mAudioText;
     private TextView mPhotoText;
     private TextView mKnitText;
-	private TextView mLocationTitleText;
+	//private TextView mLocationTitleText;
     private TextView mLatitudeText;
     private TextView mLongitudeText;
 	private TextView mLocationText;
-    //private TextView mRowText;
+    private TextView mRowText;
     private Long mRowId;
     private NotesDbAdapter mDbHelper;
     private String mAction;
@@ -59,8 +64,10 @@ public class NoteEdit extends Activity {
 	public static String CURRENT_TITLE="";
 	public static String CURRENT_BODY="";
 	
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    	try{
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -71,12 +78,18 @@ public class NoteEdit extends Activity {
         mAction = getIntent().getAction();
         if (mAction == null) {
         	Toast.makeText(NoteEdit.this, "ERROR: NO ACTION FOR NoteEdit", Toast.LENGTH_SHORT).show();
+        } else if (mAction.equals(Intent.ACTION_INSERT)) {
+        	setContentView(R.layout.note_edit);
+        	
+    		callLocateMe();
+    		
         } else if (mAction.equals(NotesDbAdapter.ACTION_CREATE)) {
         	setContentView(R.layout.note_edit);
         	
     		callLocateMe();
     		
         } else if (mAction.equals(NotesDbAdapter.ACTION_EDIT)) {
+        	
         	setContentView(R.layout.note_edit);
         } else if (mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
         	setContentView(R.layout.note_view);
@@ -92,9 +105,9 @@ public class NoteEdit extends Activity {
         mKnitText = (TextView) findViewById(R.id.NOTE_knit);
         mLatitudeText = (TextView) findViewById(R.id.NOTE_latitude);
         mLongitudeText = (TextView) findViewById(R.id.NOTE_longitude);
-        mLocationTitleText = (TextView) findViewById(R.id.NOTE_location_title);
+        //mLocationTitleText = (TextView) findViewById(R.id.NOTE_location_title);
         mLocationText = (TextView) findViewById(R.id.NOTE_location);
-        //mRowText = (TextView) findViewById(R.id.NOTE_row);
+        mRowText = (TextView) findViewById(R.id.NOTE_row);
         if (!mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
         	mTitleText = (EditText) findViewById(R.id.NOTE_title);
         	mBodyText = (EditText) findViewById(R.id.NOTE_body);
@@ -109,9 +122,19 @@ public class NoteEdit extends Activity {
         if (mRowId == null) {
         	Bundle extras = getIntent().getExtras(); 
         	mRowId = extras != null ? extras.getLong(NotesDbAdapter.KEY_ROWID) : null;
+        } else {
+        	Toast.makeText(NoteEdit.this, "Retrieving message at row: " + mRowText, Toast.LENGTH_SHORT).show();
+            /*
+        	if (mAction.equals(NotesDbAdapter.ACTION_EDIT)) {
+            	Toast.makeText(NoteEdit.this, "Editing message at row: " + Spyn.TOTAL_ROWCOUNT, Toast.LENGTH_SHORT).show();
+            	setContentView(R.layout.note_edit);
+            } else if (mAction.equals(NotesDbAdapter.ACTION_VIEW)) {
+            	Toast.makeText(NoteEdit.this, "Retrieving message at row: " + Spyn.TOTAL_ROWCOUNT, Toast.LENGTH_SHORT).show();
+                setContentView(R.layout.note_view);
+                */
         }
+        	
         
-        Toast.makeText(NoteEdit.this, "Retrieving message with RowID: " + mRowId, Toast.LENGTH_SHORT).show();
         
         //-------------
         // BUTTONS
@@ -182,7 +205,9 @@ public class NoteEdit extends Activity {
         			try {
         			//Toast.makeText(NoteEdit.this, "SHOW", Toast.LENGTH_SHORT).show();
         			String path = RecordMe.getPhotoPathFromId(mRowId,mPhotoText.getText().toString());
-        			Bitmap bitmap = BitmapFactory.decodeFile(path);//BitmapFactory.decodeStream(openFileInput(path));//decodeFile(path);
+        			File fileOut = new File(path); 
+        			fileOut.getParentFile().mkdirs(); 
+        	        Bitmap bitmap = BitmapFactory.decodeFile(path);//BitmapFactory.decodeStream(openFileInput(path));//decodeFile(path);
         			if (bitmap == null) {
         				Toast.makeText(NoteEdit.this, "GET BITMAP EXCEPTION:\nNull bitmap", Toast.LENGTH_SHORT).show();
         			}
@@ -207,6 +232,11 @@ public class NoteEdit extends Activity {
         //------------------
 		populateFields();
 		saveState();
+		
+    	}catch (Exception e) {
+    		Toast.makeText(NoteEdit.this, "ERROR: "+e.toString(), Toast.LENGTH_LONG).show();
+    		
+		}
     }
     //(end onCreate)
     
@@ -225,7 +255,7 @@ public class NoteEdit extends Activity {
     private void populateFields() {
     	
     	if (mRowId != null) {    		
-    		Cursor note = mDbHelper.fetchNote(mRowId);
+    		Cursor note = mDbHelper.fetchNote(mRowId,Spyn.PROJ_ID);
     		//Toast.makeText(NoteEdit.this, mRowId+" Populating fields: "+note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION), Toast.LENGTH_SHORT).show();
     		startManagingCursor(note);
     		mTitleText.setText(note.getString(
@@ -249,13 +279,27 @@ public class NoteEdit extends Activity {
     		mLongitudeText.setText(note.getString(
     				note.getColumnIndexOrThrow(NotesDbAdapter.KEY_LOCATION_LON)));
     		//mRowText.setText(note.getString(
-    		//		note.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWCOUNT)));
+    				//note.getColumnIndexOrThrow(NotesDbAdapter.KEY_ROWCOUNT)));
     		
     		//--------------------------
     		// Show playback buttons
     		//--------------------------
+    		String path = RecordMe.getTestMemoryScanPathFromId();
+			//String path = RecordMe.getMemoryScanPathFromId(mRowId);
+			Bitmap bitmapk = BitmapFactory.decodeFile(path);
+			File fileOut = new File(path); 
+			fileOut.getParentFile().mkdirs(); 
+	        if (bitmapk == null) {
+				Toast.makeText(NoteEdit.this, "GET KNIT BITMAP EXCEPTION:\nNull bitmap", Toast.LENGTH_SHORT).show();
+			}
+			ImageButton knitImageButton = (ImageButton) findViewById(R.id.NOTE_knitPreviewButton);
+			if (knitImageButton.getVisibility()!=View.VISIBLE) {
+				knitImageButton.setImageBitmap(bitmapk);
+				knitImageButton.setVisibility(View.VISIBLE);
+			}
+			
     		if (!mPhotoText.getText().toString().equals("0")) {
-    			String path = RecordMe.getPhotoPathFromId(mRowId,mPhotoText.getText().toString());
+    			path = RecordMe.getPhotoPathFromId(mRowId,mPhotoText.getText().toString());
     			Bitmap bitmap = BitmapFactory.decodeFile(path);//BitmapFactory.decodeStream(openFileInput(path));//decodeFile(path);
     			if (bitmap == null) {
     				Toast.makeText(NoteEdit.this, "GET BITMAP EXCEPTION:\nNull bitmap", Toast.LENGTH_SHORT).show();
@@ -283,9 +327,9 @@ public class NoteEdit extends Activity {
     		
     		//--------------------------
     	} else {
-    		mTitleText.setText("[title]");
+    		mTitleText.setText("");
     		//mTimeText.setText("[body]"); //isn't editable for CREATE
-    		mBodyText.setText("[body]");
+    		mBodyText.setText("");
     		//Toast.makeText(this, "FIRSTaction = " + mAction, Toast.LENGTH_SHORT).show();
     		mVideoText.setText("0");
     		//Toast.makeText(this, "SECONDaction = " + mAction, Toast.LENGTH_SHORT).show();
@@ -323,23 +367,25 @@ public class NoteEdit extends Activity {
     	int video = Integer.parseInt(mVideoText.getText().toString());
     	int audio = Integer.parseInt(mAudioText.getText().toString());
     	int photo = Integer.parseInt(mPhotoText.getText().toString());
-    	int knit = Integer.parseInt(mKnitText.getText().toString());
+    	long knit = Spyn.PROJ_ID; //Integer.parseInt(mKnitText.getText().toString());
     	String location = mLocationText.getText().toString();
     	double latitude= Double.parseDouble(mLatitudeText.getText().toString());
     	double longitude= Double.parseDouble(mLongitudeText.getText().toString());
-
     	if (mRowId == null) { // create 
-    		Date myDate = new Date(System.currentTimeMillis());
-    		time = myDate.toGMTString();
+    		
+    		time = Spyn.getDate(Spyn.DATE_NUMERICAL);
     		location = "";
     		int rowcount = Spyn.TOTAL_ROWCOUNT;
+    		int stitchcount = Spyn.TOTAL_STITCHCOUNT;
     		//Toast.makeText(this, "ROW COUNT" + rowcount, Toast.LENGTH_LONG).show();
     		long id = mDbHelper.createNote(title, time, body, video, audio,  
-    				photo, knit, location, latitude, longitude, rowcount);
+    				photo, knit, location, latitude, longitude, rowcount,stitchcount);
     		if (id > 0) {
     			mRowId = id;
     		}
-    		//Toast.makeText(this, "SAVED WITH ROW: " + rowcount, Toast.LENGTH_LONG).show();
+    		
+    		Toast.makeText(this, "SAVED WITH ID: " + id+" Project "+Spyn.PROJ_ID, Toast.LENGTH_LONG).show();
+    	
     	} else { // edit
     		time = mTimeText.getText().toString();
     		location = mLocationText.getText().toString();
@@ -349,87 +395,7 @@ public class NoteEdit extends Activity {
     	}
 
     }    
-    
-    //ACTIVITY RETURN
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
-        super.onActivityResult(requestCode, resultCode, returnIntent);
-        if (resultCode == RESULT_OK) {
-        	
-        	if (requestCode == Spyn.ACTIVITY_VIDEO) {
-        		// set play button visibility
-        		Button video_VIS = (Button) findViewById(R.id.NOTE_videoPreviewButton);
-        		if (video_VIS.getVisibility() != View.VISIBLE) { video_VIS.setVisibility(View.VISIBLE); }
-        		try {
-        			
-        			File recfile = new File(RecordMe.getVideoPathFromId(mRowId, mVideoText.getText().toString()));
-        			if (recfile.exists()) { recfile.delete(); }
-        			recfile.createNewFile();
-        			Uri uri = Uri.fromFile(recfile);
-        			OutputStream outstream = getContentResolver().openOutputStream(uri);
-        			outstream.write((byte[])returnIntent.getExtras().get("data"));
-        			outstream.close();
-        		} catch (Exception e) {
-        			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
-        		}
-
-        		
-        	} else if (requestCode == Spyn.ACTIVITY_LOCATEME) {
-
-            	if (returnIntent!=null) {
-        			locateMeMethod(returnIntent);
-        		} /*else {
-        			Toast.makeText(this, "ERROR:\nNOTEEDIT: LOCATEME returned no intent", Toast.LENGTH_SHORT).show();
-        		}*/
-
-        	} else if (requestCode == Spyn.ACTIVITY_PHOTO) {
-        		//Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
-        		try {
-        			Bitmap x = (Bitmap) returnIntent.getExtras().get("data");
-        			//ImageView iv = new ImageView(this); iv.setImageBitmap(x);
-        			//setContentView(iv);
-        			
-		        	mPhotoText.setText(
-			        		"" + (1 + 
-			        				Integer.parseInt(
-			        						mPhotoText.getText().toString())));
-		        	saveState();
-   			
-		        	String path = RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString());
-        			//Environment.getExternalStorageDirectory() + "/" + "TESTTEST" + ".png";
-        			File recfile = new File(path);
-        			if (recfile.exists()) { recfile.delete(); }
-        			recfile.createNewFile();
-        			Uri uri = Uri.fromFile(recfile);
-        			OutputStream outstream;
-        			outstream = getContentResolver().openOutputStream(uri);
-        			x.compress(Bitmap.CompressFormat.JPEG, 100, outstream);
-        			outstream.close();
-
-        			ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
-        			photoImageButton.setImageBitmap(x);
-        			photoImageButton.setVisibility(View.VISIBLE);
-        			
-        			// Saved State, now reset row count
-        			//Spyn.TOTAL_ROWCOUNT = 0;
-        			Spyn.resetRowCount();
-        			
-        		} catch (Exception e) {
-        			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
-        		}
-
-        		populateFields();
-        		//Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
-
-        	}	else {
-        		//Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
-        	}
-
-        } else if (resultCode == RESULT_CANCELED){
-        	//Toast.makeText(this, "ERROR:\nNOTEEDIT: resultCode \"cancelled\"", Toast.LENGTH_SHORT).show();
-        }
-    }
-
+        
     public void callLocateMeOnMap() {
     	Intent i = new Intent(this, LocateMe.class);
     	startActivityForResult(i, Spyn.ACTIVITY_LOCATEME);
@@ -529,6 +495,97 @@ public class NoteEdit extends Activity {
 	    }
 
 	  }
+    
+  //ACTIVITY RETURN
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
+        super.onActivityResult(requestCode, resultCode, returnIntent);
+        if (resultCode == RESULT_OK) {
+        	
+        	if (requestCode == Spyn.ACTIVITY_VIDEO) {
+        		// set play button visibility
+        		Button video_VIS = (Button) findViewById(R.id.NOTE_videoPreviewButton);
+        		if (video_VIS.getVisibility() != View.VISIBLE) { video_VIS.setVisibility(View.VISIBLE); }
+        		try {
+        			
+        			File recfile = new File(RecordMe.getVideoPathFromId(mRowId, mVideoText.getText().toString()));
+        			if (recfile.exists()) { recfile.delete(); }
+        			recfile.createNewFile();
+        			Uri uri = Uri.fromFile(recfile);
+        			OutputStream outstream = getContentResolver().openOutputStream(uri);
+        			outstream.write((byte[])returnIntent.getExtras().get("data"));
+        			outstream.close();
+        		} catch (Exception e) {
+        			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
+        		}
+
+        		
+        	} else if (requestCode == Spyn.ACTIVITY_LOCATEME) {
+
+            	if (returnIntent!=null) {
+        			locateMeMethod(returnIntent);
+        		} /*else {
+        			Toast.makeText(this, "ERROR:\nNOTEEDIT: LOCATEME returned no intent", Toast.LENGTH_SHORT).show();
+        		}*/
+
+        	} else if (requestCode == Spyn.ACTIVITY_PHOTO) {
+        		//Toast.makeText(this, "SPYN: Camera returned something", Toast.LENGTH_SHORT).show();
+        		try {
+        			mPhotoText.setText(
+			        		"" + (1 + 
+			        				Integer.parseInt(
+			        						mPhotoText.getText().toString())));
+		        	saveState();
+   			
+		        	Bitmap x = (Bitmap) returnIntent.getExtras().get("data");
+        			String path = RecordMe.getPhotoPathFromId(mRowId, mPhotoText.getText().toString());
+        			//Environment.getExternalStorageDirectory() + "/" + "TESTTEST" + ".png";
+        			File recfile = new File(path);
+        			recfile.getParentFile().mkdirs(); 
+        	        if (recfile.exists()) { recfile.delete(); }
+        			recfile.createNewFile();
+        			Uri uri = Uri.fromFile(recfile);
+        			OutputStream outstream;
+        			outstream = getContentResolver().openOutputStream(uri);
+        			x.compress(Bitmap.CompressFormat.JPEG, 100, outstream);
+        			outstream.close();
+
+        			/** Photo Preview **/
+        			ImageButton photoImageButton = (ImageButton) findViewById(R.id.NOTE_photoPreviewButton);
+        			photoImageButton.setImageBitmap(x);
+        			photoImageButton.setVisibility(View.VISIBLE);
+        			
+        			path = RecordMe.getTestMemoryScanPathFromId();
+        			//path = RecordMe.getMemoryScanPathFromId(mRowId);
+        			Bitmap bitmap = BitmapFactory.decodeFile(path);
+        			if (bitmap == null) {
+        				Toast.makeText(NoteEdit.this, "GET KNIT (2) BITMAP EXCEPTION:\nNull bitmap", Toast.LENGTH_SHORT).show();
+        			}
+        			/** Knit Scan Preview **/        			
+        			ImageButton knitImageButton = (ImageButton) findViewById(R.id.NOTE_knitPreviewButton);
+        			knitImageButton.setImageBitmap(x);
+        			knitImageButton.setVisibility(View.VISIBLE);
+        			
+        			// Saved State, now reset row count
+        			//Spyn.TOTAL_ROWCOUNT = 0;
+        			Spyn.resetRowCount();
+        			
+        		} catch (Exception e) {
+        			Toast.makeText(this, "SPYN:\nEXCEPTION:\n" + e, Toast.LENGTH_LONG * 10).show();
+        		}
+
+        		populateFields();
+        		//Toast.makeText(this, "SPYN: Photo Saved", Toast.LENGTH_SHORT).show();
+
+        	}	else {
+        		//Toast.makeText(this, "ERROR:\nNOTEEDIT: unidentified resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
+        	}
+
+        } else if (resultCode == RESULT_CANCELED){
+        	//Toast.makeText(this, "ERROR:\nNOTEEDIT: resultCode \"cancelled\"", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
    }
 
